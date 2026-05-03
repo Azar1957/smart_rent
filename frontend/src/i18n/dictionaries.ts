@@ -2,7 +2,64 @@ export type Locale = 'ru' | 'en' | 'es';
 
 export const LOCALES: Locale[] = ['ru', 'en', 'es'];
 
-export const dictionaries = {
+export interface Dictionary {
+  appName: string;
+  tagline: string;
+  nav: {
+    dashboard: string;
+    properties: string;
+    bookings: string;
+    payments: string;
+    login: string;
+    logout: string;
+    register: string;
+  };
+  auth: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    role: string;
+    tenant: string;
+    landlord: string;
+    signIn: string;
+    signUp: string;
+    noAccount: string;
+    haveAccount: string;
+  };
+  common: {
+    create: string;
+    save: string;
+    delete: string;
+    edit: string;
+    cancel: string;
+    loading: string;
+    empty: string;
+    actions: string;
+  };
+  home: {
+    heroTitle: string;
+    heroSub: string;
+    ctaStart: string;
+    ctaDemo: string;
+    f1Title: string;
+    f1Body: string;
+    f2Title: string;
+    f2Body: string;
+    f3Title: string;
+    f3Body: string;
+  };
+  dash: {
+    incomeByMonth: string;
+    segmentsByStatus: string;
+    overdue: string;
+    activeLeases: string;
+    nextPayment: string;
+    noPayments: string;
+  };
+}
+
+export const dictionaries: Record<Locale, Dictionary> = {
   ru: {
     appName: 'Smart Rent',
     tagline: 'Долгосрочная аренда комнат — просто, безопасно, прозрачно',
@@ -63,6 +120,4 @@ export const dictionaries = {
     },
     dash: { incomeByMonth: 'Ingresos por mes', segmentsByStatus: 'Segmentos por estado', overdue: 'Vencidos', activeLeases: 'Contratos activos', nextPayment: 'Próximo pago', noPayments: 'Sin pagos' },
   },
-} as const;
-
-export type Dictionary = (typeof dictionaries)['ru'];
+};
