@@ -1,0 +1,3 @@
+# Шаблон. Скрипт deploy/nginx/render.sh подставит __DOMAIN__ и
+# скопирует один из двух файлов (ip-only.conf или domain.conf) в conf.d.
+# В рантайне nginx читает только финальный *.conf.

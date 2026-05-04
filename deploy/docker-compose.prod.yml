@@ -1,0 +1,76 @@
+# Production-overlay для docker-compose.
+# Поднимать так:
+#   BIND=127.0.0.1 docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml up -d --build
+#
+# Переменная BIND=127.0.0.1 (через окружение) делает порты iris/frontend
+# слушающими только loopback — наружу выходим только через nginx.
+#
+# Этот overlay добавляет:
+#   - nginx как reverse-proxy на 80/443 с авто-Let's-Encrypt;
+#   - certbot-сервис для продления сертификата (профиль "certbot");
+#   - ограничения памяти и автоматический restart;
+#   - rotation логов.
+
+services:
+  iris:
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  frontend:
+    environment:
+      NODE_ENV: production
+      IRIS_API_BASE: http://iris:52773/api/smartrent/v1
+      NEXT_PUBLIC_API_BASE: /api/iris
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: smartrent-nginx
+    depends_on:
+      - frontend
+      - iris
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/nginx/snippets:/etc/nginx/snippets:ro
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: smartrent-certbot
+    profiles: ["certbot"]
+    volumes:
+      - letsencrypt:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    entrypoint: "/bin/sh"
+    command: ["-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done"]
+
+volumes:
+  letsencrypt:
+  certbot-www:

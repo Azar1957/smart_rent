@@ -1,5 +1,38 @@
 # Changelog
 
+## 0.2.0 — Деплой-pipeline (план A: GitHub Actions)
+
+### Что добавлено
+
+- `deploy/setup-server.sh` — однократный скрипт первичной настройки Ubuntu
+  22.04 / 24.04: Docker Engine + Compose plugin (официальный репозиторий),
+  пользователь `deploy` с группой `docker`, swap-файл 4 ГБ, ufw (22/80/443),
+  fail2ban, unattended-upgrades, каталоги `/srv/smartrent` и `/var/log/smartrent`.
+- `deploy/docker-compose.prod.yml` — production-overlay: ограничение памяти
+  на контейнеры, json-file ротация логов, nginx как reverse-proxy на 80/443,
+  certbot-сервис для авто-продления Let's Encrypt.
+- `deploy/nginx/conf.d/{ip-only,domain}.conf.disabled` — два режима nginx:
+  без HTTPS (по голому IP) и с HTTPS (Let's Encrypt). Активируются скриптом
+  `deploy/render-nginx.sh` в зависимости от `APP_DOMAIN`.
+- `deploy/nginx/snippets/ssl-hardening.conf` — TLS-настройки уровня Mozilla
+  intermediate + HSTS, X-Frame-Options, Referrer-Policy.
+- `deploy/issue-cert.sh` — однократный выпуск SSL-сертификата.
+- `.github/workflows/deploy.yml` — деплой по push в `main`: проверка секретов,
+  настройка SSH, `git pull` на сервере, `docker compose up -d --build`,
+  ожидание `/health`, smoke-test.
+- `docker-compose.yml` — добавлена переменная `BIND` для биндинга портов
+  (`0.0.0.0` в dev, `127.0.0.1` в prod).
+- `docs/06-production-deploy.md` — пошаговый гайд: секреты GitHub, выпуск
+  сертификата, первый деплой, диагностика, отзыв доступа, бэкапы.
+
+### Безопасность
+
+- Сервер выходит наружу только портами 80/443 (nginx). IRIS и Next.js
+  слушают только 127.0.0.1.
+- Отдельный SSH-ключ под деплой, отдельный пользователь `deploy` без root,
+  fail2ban на SSH.
+- Современные TLS-настройки (TLS 1.2/1.3, Mozilla intermediate, HSTS).
+
 ## 0.1.0 — Этап 1. Ядро + первичный интерфейс
 
 ### Что сделано

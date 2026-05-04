@@ -1,0 +1,171 @@
+name: Deploy to production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Force --no-cache rebuild"
+        required: false
+        default: "false"
+
+concurrency:
+  group: smartrent-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: SSH deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Sanity check secrets
+        env:
+          SSH_HOST:        ${{ secrets.SSH_HOST }}
+          SSH_USER:        ${{ secrets.SSH_USER }}
+          SSH_PORT:        ${{ secrets.SSH_PORT }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          APP_DOMAIN:      ${{ secrets.APP_DOMAIN }}
+        run: |
+          for v in SSH_HOST SSH_USER SSH_PORT SSH_PRIVATE_KEY; do
+            if [ -z "$(eval echo \$$v)" ]; then
+              echo "::error::Secret $v не задан в Settings → Secrets and variables → Actions"
+              exit 1
+            fi
+          done
+          echo "Target: $SSH_USER@$SSH_HOST:$SSH_PORT"
+          echo "Domain: ${APP_DOMAIN:-IP-only mode}"
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST:        ${{ secrets.SSH_HOST }}
+          SSH_PORT:        ${{ secrets.SSH_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          cat >> ~/.ssh/config <<EOF
+          Host smartrent-prod
+              HostName $SSH_HOST
+              User ${{ secrets.SSH_USER }}
+              Port $SSH_PORT
+              IdentityFile ~/.ssh/deploy_key
+              StrictHostKeyChecking accept-new
+              ServerAliveInterval 30
+          EOF
+
+      - name: Verify connection
+        run: ssh smartrent-prod 'echo "Connected as $(whoami) on $(hostname)"; docker --version'
+
+      - name: Deploy
+        env:
+          APP_DOMAIN:           ${{ secrets.APP_DOMAIN }}
+          APP_LETSENCRYPT_EMAIL: ${{ secrets.APP_LETSENCRYPT_EMAIL }}
+          FORCE_REBUILD:        ${{ inputs.force_rebuild }}
+          GIT_REF:              ${{ github.sha }}
+          GIT_BRANCH:           ${{ github.ref_name }}
+          REPO_URL:             https://github.com/${{ github.repository }}.git
+        run: |
+          ssh smartrent-prod bash -s <<EOF
+          set -euo pipefail
+
+          APP_DIR="/srv/smartrent"
+          REPO_URL="$REPO_URL"
+          GIT_REF="$GIT_REF"
+          GIT_BRANCH="$GIT_BRANCH"
+          export APP_DOMAIN="${APP_DOMAIN:-IP}"
+          export APP_LETSENCRYPT_EMAIL="${APP_LETSENCRYPT_EMAIL:-}"
+          FORCE_REBUILD="${FORCE_REBUILD:-false}"
+
+          echo "===> deploy revision: \$GIT_REF (branch \$GIT_BRANCH)"
+          echo "===> domain: \$APP_DOMAIN"
+
+          mkdir -p "\$APP_DIR"
+          cd "\$APP_DIR"
+
+          if [ ! -d .git ]; then
+              echo "===> clone fresh repo"
+              git clone "\$REPO_URL" .
+          fi
+
+          git fetch --all --prune
+          git checkout "\$GIT_BRANCH"
+          git reset --hard "\$GIT_REF"
+          git submodule update --init --recursive || true
+
+          chmod +x deploy/*.sh
+
+          echo "===> render nginx config"
+          bash deploy/render-nginx.sh
+
+          # BIND=127.0.0.1 делает порты iris/frontend доступными
+          # только через nginx (наружу только 80/443).
+          export BIND=127.0.0.1
+          COMPOSE="docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml"
+
+          if [ "\$FORCE_REBUILD" = "true" ]; then
+              echo "===> forced --no-cache rebuild"
+              \$COMPOSE build --no-cache
+          fi
+
+          echo "===> bringing stack up"
+          \$COMPOSE up -d --build
+
+          echo "===> docker ps"
+          \$COMPOSE ps
+
+          echo "===> waiting for IRIS health (up to 4 min)"
+          for i in \$(seq 1 48); do
+              code=\$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:52773/api/smartrent/v1/health || true)
+              if [ "\$code" = "200" ]; then
+                  echo "    IRIS healthy (attempt \$i)"
+                  break
+              fi
+              sleep 5
+          done
+
+          echo "===> waiting for frontend (up to 1 min)"
+          for i in \$(seq 1 12); do
+              code=\$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/ || true)
+              if [ "\$code" = "200" ] || [ "\$code" = "307" ] || [ "\$code" = "308" ]; then
+                  echo "    frontend up (attempt \$i, HTTP \$code)"
+                  break
+              fi
+              sleep 5
+          done
+
+          echo "===> tail iris logs"
+          \$COMPOSE logs --tail 30 iris || true
+
+          echo "===> deploy finished"
+          EOF
+
+      - name: Smoke test (HTTPS если домен / HTTP если IP)
+        env:
+          SSH_HOST:   ${{ secrets.SSH_HOST }}
+          APP_DOMAIN: ${{ secrets.APP_DOMAIN }}
+        run: |
+          if [ -n "$APP_DOMAIN" ] && [ "$APP_DOMAIN" != "IP" ]; then
+              URL="https://$APP_DOMAIN/api/iris/health"
+          else
+              URL="http://$SSH_HOST/api/iris/health"
+          fi
+          echo "Smoke test: $URL"
+          for i in 1 2 3 4 5; do
+              if curl -fsSL "$URL" > /tmp/health.json; then
+                  echo "  OK"
+                  cat /tmp/health.json
+                  break
+              fi
+              echo "  attempt $i failed, retrying in 10s…"
+              sleep 10
+          done

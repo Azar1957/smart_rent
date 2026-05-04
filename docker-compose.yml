@@ -4,9 +4,11 @@ services:
       context: ./iris
     image: smartrent/iris:dev
     container_name: smartrent-iris
+    # В dev-режиме порты на 0.0.0.0, в prod — переопределяем переменной BIND
+    # на 127.0.0.1 (доступ только через nginx). См. deploy/docker-compose.prod.yml.
     ports:
-      - "1972:1972"     # Super Server (SQL/JDBC/ODBC/Native)
-      - "52773:52773"   # Web Server (Management Portal + REST)
+      - "${BIND:-0.0.0.0}:1972:1972"     # Super Server (SQL/JDBC/ODBC/Native)
+      - "${BIND:-0.0.0.0}:52773:52773"   # Web Server (Management Portal + REST)
     environment:
       ISC_PASSWORD_INITIAL: SYS1
       ISC_DEFAULT_PORT: 52773
@@ -26,7 +28,7 @@ services:
     image: smartrent/frontend:dev
     container_name: smartrent-frontend
     ports:
-      - "3000:3000"
+      - "${BIND:-0.0.0.0}:3000:3000"
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_BASE: http://localhost:52773/api/smartrent/v1
