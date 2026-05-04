@@ -1,15 +1,53 @@
 /// Установщик: создаёт namespace SMARTRENT, его базы данных и REST web-приложение.
+/// Все методы идемпотентны — могут вызываться при каждом старте контейнера.
 Class SmartRent.Setup.Installer Extends %RegisteredObject
 {
 
-/// Создать namespace и физические базы (для данных и кода) с предсказуемыми путями.
+/// Полный setup: namespace + загрузка классов + web-app + фикстуры.
+/// Возвращает $$$OK всегда (логирует ошибки, но не падает),
+/// чтобы entrypoint не зацикливался на одном плохом шаге.
+ClassMethod RunAll() As %Status
+{
+    new $namespace
+    set $namespace = "%SYS"
+
+    write !, "[smartrent] === Smart Rent setup ===", !
+
+    set sc = ..CreateNamespace("SMARTRENT")
+    if $$$ISERR(sc) {
+        write "[smartrent] CreateNamespace error: ", $system.Status.GetErrorText(sc), !
+    }
+
+    set $namespace = "SMARTRENT"
+    set sc = $system.OBJ.LoadDir("/opt/smartrent/src", "ck", , 1)
+    if $$$ISERR(sc) {
+        write "[smartrent] LoadDir error: ", $system.Status.GetErrorText(sc), !
+    }
+
+    set $namespace = "%SYS"
+    set sc = ..CreateWebApp()
+    if $$$ISERR(sc) {
+        write "[smartrent] CreateWebApp error: ", $system.Status.GetErrorText(sc), !
+    }
+
+    set $namespace = "SMARTRENT"
+    set sc = ##class(SmartRent.Setup.Fixtures).Load()
+    if $$$ISERR(sc) {
+        write "[smartrent] Fixtures.Load error: ", $system.Status.GetErrorText(sc), !
+    }
+
+    write "[smartrent] === setup complete ===", !
+    quit $$$OK
+}
+
+/// Создать namespace и физические базы (data + code).
 ClassMethod CreateNamespace(pNs As %String) As %Status
 {
     new $namespace
     set $namespace = "%SYS"
 
-    if ##class(%SYS.Namespace).Exists(pNs) {
-        write !, "Namespace ", pNs, " already exists, skipping create.", !
+    if ##class(Config.Namespaces).Exists(pNs) {
+        write "[smartrent] namespace ", pNs, " already exists", !
         quit $$$OK
     }
 
@@ -19,32 +57,41 @@ ClassMethod CreateNamespace(pNs As %String) As %Status
     do ##class(%File).CreateDirectoryChain(tDataDir)
     do ##class(%File).CreateDirectoryChain(tCodeDir)
 
-    // Базы данных
-    set tDbProps("Directory") = tDataDir
-    set tStatus = ##class(SYS.Database).CreateDatabase(tDataDir, , , , .tDbProps)
-    if $$$ISERR(tStatus) quit tStatus
+    if '##class(SYS.Database).%ExistsId(tDataDir) {
+        set sc = ##class(SYS.Database).CreateDatabase(tDataDir)
+        if $$$ISERR(sc) quit sc
+    }
+    if '##class(SYS.Database).%ExistsId(tCodeDir) {
+        set sc = ##class(SYS.Database).CreateDatabase(tCodeDir)
+        if $$$ISERR(sc) quit sc
+    }
 
-    set tCodeProps("Directory") = tCodeDir
-    set tStatus = ##class(SYS.Database).CreateDatabase(tCodeDir, , , , .tCodeProps)
-    if $$$ISERR(tStatus) quit tStatus
+    if '##class(Config.Databases).Exists(pNs) {
+        kill dbProps  set dbProps("Directory") = tDataDir
+        set sc = ##class(Config.Databases).Create(pNs, .dbProps)
+        if $$$ISERR(sc) quit sc
+    }
+    if '##class(Config.Databases).Exists(pNs _ "CODE") {
+        kill dbProps  set dbProps("Directory") = tCodeDir
+        set sc = ##class(Config.Databases).Create(pNs _ "CODE", .dbProps)
+        if $$$ISERR(sc) quit sc
+    }
 
-    // Маппинги БД → namespace.
-    set tNsProps("Globals")    = pNs
-    set tNsProps("Routines")   = pNs _ "CODE"
-    set tNsProps("SysGlobals") = "IRISSYS"
-    set tNsProps("SysRoutines")= "IRISSYS"
-    set tStatus = ##class(Config.Namespaces).Create(pNs, .tNsProps)
-    if $$$ISERR(tStatus) quit tStatus
+    kill nsProps
+    set nsProps("Globals")     = pNs
+    set nsProps("Routines")    = pNs _ "CODE"
+    set nsProps("SysGlobals")  = "IRISSYS"
+    set nsProps("SysRoutines") = "IRISSYS"
+    set nsProps("TempGlobals") = "IRISTEMP"
+    set sc = ##class(Config.Namespaces).Create(pNs, .nsProps)
+    if $$$ISERR(sc) quit sc
 
-    // Регистрируем БД в Config.Databases (нужно для CreateDatabase, выполненного выше).
-    set tStatus = ##class(Config.Databases).Create(pNs, .tDbProps)
-    do ##class(Config.Databases).Create(pNs _ "CODE", .tCodeProps)
-
-    write !, "Namespace ", pNs, " created at ", tDataDir, !
+    write "[smartrent] namespace ", pNs, " created at ", tDataDir, !
     quit $$$OK
 }
 
 /// Зарегистрировать REST web-приложение, обслуживающее SmartRent.REST.Dispatch.
+/// Используем числовое значение AutheUnauthenticated=64 (без $$$-макросов).
 ClassMethod CreateWebApp() As %Status
 {
     new $namespace
@@ -53,27 +100,29 @@ ClassMethod CreateWebApp() As %Status
     set tApp = "/api/smartrent/v1"
 
     if ##class(Security.Applications).Exists(tApp) {
-        write !, "Web app ", tApp, " already exists.", !
+        write "[smartrent] web app ", tApp, " already exists", !
         quit $$$OK
     }
 
-    set tProps("NameSpace")        = "SMARTRENT"
-    set tProps("Description")      = "Smart Rent REST API"
-    set tProps("DispatchClass")    = "SmartRent.REST.Dispatch"
-    set tProps("AutheEnabled")     = $$$AutheUnauthenticated + $$$AutheCache
-    set tProps("MatchRoles")       = ":%All"
-    set tProps("Enabled")          = 1
-    set tProps("CSPZENEnabled")    = 1
-    set tProps("CookiePath")       = tApp
-    set tProps("DeepSeeEnabled")   = 0
+    kill props
+    set props("NameSpace")     = "SMARTRENT"
+    set props("Description")   = "Smart Rent REST API"
+    set props("DispatchClass") = "SmartRent.REST.Dispatch"
+    set props("AutheEnabled")  = 64    ; AutheUnauthenticated
+    set props("MatchRoles")    = ":%All"
+    set props("Enabled")       = 1
+    set props("CSPZENEnabled") = 1
+    set props("DeepSeeEnabled")= 0
+    set props("CookiePath")    = tApp _ "/"
+    set props("AutoCompile")   = 1
 
-    set tStatus = ##class(Security.Applications).Create(tApp, .tProps)
-    if $$$ISERR(tStatus) {
-        write !, "Failed to create web app: ", $system.Status.GetErrorText(tStatus), !
-        quit tStatus
+    set sc = ##class(Security.Applications).Create(tApp, .props)
+    if $$$ISERR(sc) {
+        write "[smartrent] failed to create web app: ", $system.Status.GetErrorText(sc), !
+        quit sc
     }
 
-    write !, "Web app ", tApp, " created (DispatchClass=SmartRent.REST.Dispatch).", !
+    write "[smartrent] web app ", tApp, " created (DispatchClass=SmartRent.REST.Dispatch)", !
     quit $$$OK
 }
 

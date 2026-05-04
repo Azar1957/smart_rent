@@ -6,19 +6,20 @@ FROM intersystemsdc/iris-community:latest
 
 USER root
 
-# Каталог исходников ObjectScript (классы импортируются скриптом ниже).
-COPY --chown=irisowner:irisowner src       /opt/smartrent/src
-COPY --chown=irisowner:irisowner iris.script /opt/smartrent/iris.script
+# Каталог исходников ObjectScript.
+COPY --chown=irisowner:irisowner src             /opt/smartrent/src
+COPY --chown=irisowner:irisowner entrypoint.sh   /opt/smartrent/entrypoint.sh
+
+RUN chmod +x /opt/smartrent/entrypoint.sh
+
+# Подмена ENTRYPOINT: сначала ждём IRIS, затем идемпотентный setup,
+# потом контейнер живёт обычной жизнью.
+# Setup делается в runtime, а не в build, потому что том /durable монтируется
+# только при `docker run` и скрывает любые файлы, созданные на этапе build.
+ENTRYPOINT ["/opt/smartrent/entrypoint.sh"]
+CMD ["--check-caps", "false"]
 
 USER irisowner
 
-# Скрипт выполняется в %SYS при старте контейнера: создаёт namespace SMARTRENT,
-# импортирует пакет SmartRent.*, регистрирует REST web-приложение, грузит демо-данные.
-SHELL ["/bin/bash", "-c"]
-RUN iris start IRIS quietly                                     \
- && iris session IRIS -U %SYS < /opt/smartrent/iris.script      \
- && iris stop  IRIS quietly
-
-# Healthcheck по REST-эндпоинту платформы.
-HEALTHCHECK --interval=15s --timeout=5s --retries=20 \
+HEALTHCHECK --interval=15s --timeout=5s --retries=40 --start-period=120s \
   CMD curl -fsS http://localhost:52773/api/smartrent/v1/health || exit 1

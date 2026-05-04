@@ -5,9 +5,10 @@ Class SmartRent.Setup.Fixtures Extends %RegisteredObject
 ClassMethod Load() As %Status
 {
     if ##class(SmartRent.Model.User).EmailIdxExists("admin@smartrent.local") {
-        write !, "Fixtures already loaded.", !
+        write "[smartrent] fixtures already loaded", !
         quit $$$OK
     }
+    write "[smartrent] loading fixtures…", !
 
     set admin = ..mkUser("admin@smartrent.local", "Admin12345!", "admin", "Admin", "Smart")
     set landlord = ..mkUser("landlord@smartrent.local", "Land12345!", "landlord", "Иван", "Петров")
