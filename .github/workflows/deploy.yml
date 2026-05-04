@@ -107,38 +107,9 @@ jobs:
           echo "===> render nginx config"
           bash deploy/render-nginx.sh
 
-          # Актуализируем .env (создан setup-server.sh): добавляем/обновляем
-          # APP_DOMAIN и APP_LETSENCRYPT_EMAIL из GitHub Secrets, не трогая
-          # сгенерированный IRIS_PASSWORD.
-          ENV_FILE="\$APP_DIR/.env"
-          if [ ! -f "\$ENV_FILE" ]; then
-              echo "::warning::\$ENV_FILE отсутствует — создаю минимальный"
-              RANDOM_PWD="\$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
-              cat > "\$ENV_FILE" <<ENVEOF
-          IRIS_PASSWORD=\$RANDOM_PWD
-          BIND=127.0.0.1
-          ENVEOF
-              chmod 600 "\$ENV_FILE"
-          fi
-          # Вставляем/обновляем APP_DOMAIN
-          if grep -q '^APP_DOMAIN=' "\$ENV_FILE"; then
-              sed -i "s|^APP_DOMAIN=.*|APP_DOMAIN=\$APP_DOMAIN|" "\$ENV_FILE"
-          else
-              echo "APP_DOMAIN=\$APP_DOMAIN" >> "\$ENV_FILE"
-          fi
-          if grep -q '^APP_LETSENCRYPT_EMAIL=' "\$ENV_FILE"; then
-              sed -i "s|^APP_LETSENCRYPT_EMAIL=.*|APP_LETSENCRYPT_EMAIL=\$APP_LETSENCRYPT_EMAIL|" "\$ENV_FILE"
-          else
-              echo "APP_LETSENCRYPT_EMAIL=\$APP_LETSENCRYPT_EMAIL" >> "\$ENV_FILE"
-          fi
-          # Гарантируем BIND=127.0.0.1 для prod (наружу только через nginx).
-          if grep -q '^BIND=' "\$ENV_FILE"; then
-              sed -i 's|^BIND=.*|BIND=127.0.0.1|' "\$ENV_FILE"
-          else
-              echo "BIND=127.0.0.1" >> "\$ENV_FILE"
-          fi
-
-          # docker compose подхватит .env автоматически (лежит рядом с docker-compose.yml).
+          # BIND=127.0.0.1 делает порты iris/frontend доступными
+          # только через nginx (наружу только 80/443).
+          export BIND=127.0.0.1
           COMPOSE="docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml"
 
           if [ "\$FORCE_REBUILD" = "true" ]; then

@@ -57,15 +57,14 @@ curl -fsSL https://raw.githubusercontent.com/Azar1957/smart_rent/main/deploy/set
 ```
 
 Скрипт сам: обновит систему, поставит Docker, создаст пользователя `deploy`,
-swap 4 GB, ufw (22/80/443), fail2ban, сгенерирует `/srv/smartrent/.env` с
-случайным `IRIS_PASSWORD` и добавит ваш публичный ключ в `authorized_keys`.
+swap 4 GB, ufw (22/80/443), fail2ban и добавит ваш публичный ключ в
+`~deploy/.ssh/authorized_keys`.
 
-В конце он напечатает путь к `.env` и сводку. Сохраните IRIS_PASSWORD в ваш
-менеджер паролей — он понадобится для входа в IRIS Management Portal:
+В конце он напечатает сводку (Docker version, RAM, swap, deploy user).
+Проверьте, что нет ошибок.
 
-```bash
-sudo grep IRIS_PASSWORD /srv/smartrent/.env
-```
+Пароль `_SYSTEM` для входа в IRIS Management Portal — `SYS1` (смените его
+при первом входе в Mgmt Portal: **System → Security Management → Users**).
 
 Отключитесь и проверьте доступ по SSH-ключу:
 

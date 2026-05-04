@@ -10,9 +10,7 @@ services:
       - "${BIND:-0.0.0.0}:1972:1972"     # Super Server (SQL/JDBC/ODBC/Native)
       - "${BIND:-0.0.0.0}:52773:52773"   # Web Server (Management Portal + REST)
     environment:
-      # Пароль _SYSTEM задаётся из .env (см. .env.example).
-      # На dev-машине без .env подставляется SYS1 (меняйте при первом входе).
-      ISC_PASSWORD_INITIAL: ${IRIS_PASSWORD:-SYS1}
+      ISC_PASSWORD_INITIAL: SYS1
       ISC_DEFAULT_PORT: 52773
     volumes:
       - iris-data:/durable

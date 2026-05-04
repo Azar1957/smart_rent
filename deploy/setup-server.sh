@@ -136,27 +136,6 @@ dpkg-reconfigure -f noninteractive unattended-upgrades || true
 mkdir -p /var/log/smartrent
 chown -R "$DEPLOY_USER:$DEPLOY_USER" /var/log/smartrent
 
-# --- 8a. .env со случайным IRIS_PASSWORD -------------------------------------
-# Создаётся один раз при первичной настройке, дальше не трогается.
-# Если нужно перегенерировать — удалите /srv/smartrent/.env и запустите setup заново.
-ENV_FILE="$APP_DIR/.env"
-if [[ ! -f "$ENV_FILE" ]]; then
-    LOG "Создаю $ENV_FILE со случайным IRIS_PASSWORD…"
-    # 24 символа, только буквы+цифры (IRIS не любит $ и слэши).
-    RANDOM_PWD="$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 24)"
-    cat > "$ENV_FILE" <<ENVEOF
-# Smart Rent — production-конфигурация.
-# Сгенерировано setup-server.sh. Не коммитьте этот файл в git.
-IRIS_PASSWORD=$RANDOM_PWD
-BIND=127.0.0.1
-ENVEOF
-    chmod 600 "$ENV_FILE"
-    chown "$DEPLOY_USER:$DEPLOY_USER" "$ENV_FILE"
-    LOG "IRIS_PASSWORD сохранён в $ENV_FILE (chmod 600)"
-else
-    LOG "$ENV_FILE уже существует — не трогаю"
-fi
-
 # --- 9. Финальные проверки ---------------------------------------------------
 LOG "Готово. Сводка:"
 echo "    Docker:      $(docker --version)"
@@ -166,10 +145,6 @@ echo "    Swap:        $(free -h | awk '/^Swap:/ {print $2}')"
 echo "    Disk free:   $(df -h / | awk 'NR==2 {print $4}')"
 echo "    Deploy user: $DEPLOY_USER (uid=$(id -u "$DEPLOY_USER"))"
 echo "    App dir:     $APP_DIR"
-echo "    Env file:    $ENV_FILE"
-echo
-LOG "IRIS-пароль для Mgmt Portal / SQL — см. $ENV_FILE (IRIS_PASSWORD)."
-LOG "Получить быстро: sudo grep IRIS_PASSWORD $ENV_FILE"
 echo
 LOG "Дальнейшие шаги:"
 echo "  1) Если SSH-ключ ещё не добавлен — положите публичный ключ в:"

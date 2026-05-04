@@ -58,13 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/Azar1957/smart_rent/main/deploy/set
 bash /tmp/setup.sh
 ```
 
-В конце скрипт выведет сводку (Docker version, free RAM, swap, deploy user, путь
-к сгенерированному `/srv/smartrent/.env`). Проверьте, что нет ошибок, и
-сохраните `IRIS_PASSWORD` в своём менеджере паролей:
-
-```bash
-sudo grep IRIS_PASSWORD /srv/smartrent/.env
-```
+В конце скрипт выведет сводку (Docker version, free RAM, swap, deploy user). Проверьте, что нет ошибок.
 
 Закройте root-сессию, попробуйте зайти под `deploy`:
 
