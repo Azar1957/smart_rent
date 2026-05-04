@@ -1,7 +1,7 @@
 #!/bin/bash
-# Диагностика состояния Smart Rent внутри контейнера.
-# Запуск:
-#   docker exec smartrent-iris bash /opt/smartrent/diag.sh
+# Диагностика Smart Rent внутри контейнера. Использует только одноместные
+# ObjectScript-выражения (write ...) — IRIS-терминал в интерактивном режиме
+# не понимает многострочные if{ ... }else{ ... } блоки.
 set -u
 
 echo "=========================================="
@@ -9,44 +9,31 @@ echo "  Smart Rent — диагностика IRIS"
 echo "=========================================="
 
 iris session iris -U%SYS <<'OS'
-zn "%SYS"
 write !,"--- Web app /api/smartrent/v1 ---",!
-if ##class(Security.Applications).Exists("/api/smartrent/v1") {
-    write "Exists=YES",!
-    set sc=##class(Security.Applications).Get("/api/smartrent/v1",.p)
-    if $$$ISERR(sc) {
-        write "Get error: ",$system.Status.GetErrorText(sc),!
-    } else {
-        zw p
-    }
-} else {
-    write "Exists=NO !!!",!
-}
-
+write "Exists: ",##class(Security.Applications).Exists("/api/smartrent/v1"),!
 write !,"--- Namespace SMARTRENT ---",!
-if ##class(Config.Namespaces).Exists("SMARTRENT") {
-    write "Exists=YES",!
-} else {
-    write "Exists=NO !!!",!
-}
-
+write "Exists: ",##class(Config.Namespaces).Exists("SMARTRENT"),!
+write !,"--- Database files on /durable ---",!
+zn "%SYS"
+do $system.OBJ.GetClassList(.list,"^[Cc]onfig.Database*")
 zn "SMARTRENT"
-write !,"--- Class compilation ---",!
-write "SmartRent.REST.Dispatch defined=",##class(%Dictionary.ClassDefinition).%ExistsId("SmartRent.REST.Dispatch"),!
-write "SmartRent.REST.Dispatch compiled=",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.REST.Dispatch"),!
-write "SmartRent.Service.Auth compiled=",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.Service.Auth"),!
-write "SmartRent.Model.User compiled=",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.Model.User"),!
-
-write !,"--- Demo users ---",!
-&sql(SELECT COUNT(*) INTO :n FROM SmartRent_Model.User)
-if SQLCODE'=0 { write "SQL error: ",SQLCODE," ",%msg,! } else { write "User rows=",n,! }
-
+write !,"(Switched to SMARTRENT) status=",$test,!
 halt
 OS
 
 echo ""
-echo "--- HTTP запрос внутри контейнера ---"
-curl -sv -o /dev/null -w "HTTP %{http_code}\n" http://localhost:52773/api/smartrent/v1/health 2>&1 | tail -15
+echo "--- Class compilation in SMARTRENT (если доступен) ---"
+iris session iris -U"SMARTRENT" <<'OS'
+write "Dispatch defined : ",##class(%Dictionary.ClassDefinition).%ExistsId("SmartRent.REST.Dispatch"),!
+write "Dispatch compiled: ",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.REST.Dispatch"),!
+write "Auth     compiled: ",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.Service.Auth"),!
+write "User     compiled: ",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.Model.User"),!
+halt
+OS
+
+echo ""
+echo "--- HTTP /api/smartrent/v1/health изнутри контейнера (через wget) ---"
+wget -SO- http://localhost:52773/api/smartrent/v1/health 2>&1 | tail -25 || true
 
 echo ""
 echo "=========================================="

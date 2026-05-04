@@ -25,5 +25,6 @@ RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/01-smartrent-setup.sh \
 
 USER irisowner
 
+# Healthcheck через wget (curl нет в базовом образе iris-community).
 HEALTHCHECK --interval=15s --timeout=5s --retries=40 --start-period=180s \
-  CMD curl -fsS http://localhost:52773/api/smartrent/v1/health || exit 1
+  CMD wget -q -O - http://localhost:52773/api/smartrent/v1/health || exit 1

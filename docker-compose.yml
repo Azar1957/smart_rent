@@ -13,11 +13,11 @@ services:
     volumes:
       - iris-data:/durable
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:52773/api/smartrent/v1/health || exit 1"]
+      test: ["CMD-SHELL", "wget -q -O - http://localhost:52773/api/smartrent/v1/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 40
-      start_period: 120s
+      start_period: 180s
     restart: unless-stopped
 
   frontend:
