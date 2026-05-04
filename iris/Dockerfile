@@ -6,23 +6,21 @@ FROM intersystemsdc/iris-community:latest
 
 USER root
 
-# Каталог исходников ObjectScript.
-COPY --chown=irisowner:irisowner src             /opt/smartrent/src
-COPY --chown=irisowner:irisowner entrypoint.sh   /opt/smartrent/entrypoint.sh
+# Каталог исходников ObjectScript (импортируется init-скриптом).
+COPY --chown=irisowner:irisowner src   /opt/smartrent/src
+
+# Init-скрипт. Базовый /docker-entrypoint.sh сам выполняет всё из
+# /docker-entrypoint-initdb.d/*.sh ПОСЛЕ старта IRIS-инстанса.
+COPY --chown=irisowner:irisowner init/01-smartrent-setup.sh \
+     /docker-entrypoint-initdb.d/01-smartrent-setup.sh
 
 # Принудительно убираем CRLF (если файл попал на Windows с autocrlf=true)
-# и делаем исполняемым. Без этого "exec /opt/smartrent/entrypoint.sh: no such file"
-# из-за shebang "#!/bin/bash\r".
-RUN sed -i 's/\r$//' /opt/smartrent/entrypoint.sh \
- && chmod +x /opt/smartrent/entrypoint.sh
-
-# Подмена ENTRYPOINT: ждём IRIS, идемпотентный setup, затем wait на процесс IRIS.
-# Setup делается в runtime (не в build), потому что том /durable монтируется
-# только при `docker run` и скрывает любые файлы, созданные на этапе build.
-ENTRYPOINT ["/opt/smartrent/entrypoint.sh"]
-CMD ["--check-caps", "false"]
+# и делаем исполняемым. Без этого "exec ... no such file" из-за shebang
+# "#!/bin/bash\r".
+RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/01-smartrent-setup.sh \
+ && chmod +x /docker-entrypoint-initdb.d/01-smartrent-setup.sh
 
 USER irisowner
 
-HEALTHCHECK --interval=15s --timeout=5s --retries=40 --start-period=120s \
+HEALTHCHECK --interval=15s --timeout=5s --retries=40 --start-period=180s \
   CMD curl -fsS http://localhost:52773/api/smartrent/v1/health || exit 1
