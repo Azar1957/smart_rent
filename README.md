@@ -49,6 +49,11 @@ smart_rent/
 
 Подробности — в каталоге [`docs/`](./docs/).
 
+## Деплой на VPS
+
+Пошаговая инструкция от нуля до работающего сайта — [`DEPLOY_QUICKSTART.md`](./DEPLOY_QUICKSTART.md).
+Расширенный вариант со всеми нюансами — [`docs/06-production-deploy.md`](./docs/06-production-deploy.md).
+
 ## Лицензия БД
 
 Сейчас используется бесплатная **IRIS Community Edition** (ограничение: до 5 одновременных

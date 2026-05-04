@@ -58,9 +58,13 @@ curl -fsSL https://raw.githubusercontent.com/Azar1957/smart_rent/main/deploy/set
 bash /tmp/setup.sh
 ```
 
-> Если ветки `main` ещё нет / репо пустой по `main` — замените `main` в URL на `cursor/deploy-pipeline-a82b` (имя ветки этого PR).
+В конце скрипт выведет сводку (Docker version, free RAM, swap, deploy user, путь
+к сгенерированному `/srv/smartrent/.env`). Проверьте, что нет ошибок, и
+сохраните `IRIS_PASSWORD` в своём менеджере паролей:
 
-В конце скрипт выведет сводку (Docker version, free RAM, swap, deploy user). Проверьте, что нет ошибок.
+```bash
+sudo grep IRIS_PASSWORD /srv/smartrent/.env
+```
 
 Закройте root-сессию, попробуйте зайти под `deploy`:
 
@@ -103,7 +107,6 @@ docker compose version
 ```bash
 cd /srv/smartrent
 git clone https://github.com/Azar1957/smart_rent.git .   # если ещё не клонирован
-git checkout cursor/deploy-pipeline-a82b                 # или main, когда смержим
 export APP_DOMAIN=smartrent.example.com
 export APP_LETSENCRYPT_EMAIL=you@example.com
 bash deploy/issue-cert.sh
@@ -122,7 +125,6 @@ docker compose -f docker-compose.yml -f deploy/docker-compose.prod.yml \
 
 ```bash
 git checkout main
-git merge cursor/deploy-pipeline-a82b
 git push origin main
 ```
 
