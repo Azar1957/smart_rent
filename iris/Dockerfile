@@ -10,11 +10,14 @@ USER root
 COPY --chown=irisowner:irisowner src             /opt/smartrent/src
 COPY --chown=irisowner:irisowner entrypoint.sh   /opt/smartrent/entrypoint.sh
 
-RUN chmod +x /opt/smartrent/entrypoint.sh
+# Принудительно убираем CRLF (если файл попал на Windows с autocrlf=true)
+# и делаем исполняемым. Без этого "exec /opt/smartrent/entrypoint.sh: no such file"
+# из-за shebang "#!/bin/bash\r".
+RUN sed -i 's/\r$//' /opt/smartrent/entrypoint.sh \
+ && chmod +x /opt/smartrent/entrypoint.sh
 
-# Подмена ENTRYPOINT: сначала ждём IRIS, затем идемпотентный setup,
-# потом контейнер живёт обычной жизнью.
-# Setup делается в runtime, а не в build, потому что том /durable монтируется
+# Подмена ENTRYPOINT: ждём IRIS, идемпотентный setup, затем wait на процесс IRIS.
+# Setup делается в runtime (не в build), потому что том /durable монтируется
 # только при `docker run` и скрывает любые файлы, созданные на этапе build.
 ENTRYPOINT ["/opt/smartrent/entrypoint.sh"]
 CMD ["--check-caps", "false"]
