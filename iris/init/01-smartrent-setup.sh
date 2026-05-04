@@ -1,65 +1,60 @@
 #!/bin/bash
-# Init-скрипт для intersystemsdc/iris-community.
-# Базовый /docker-entrypoint.sh выполняет всё из /docker-entrypoint-initdb.d/*.sh
+# Init-скрипт Smart Rent.
+# Базовый /docker-entrypoint.sh сам выполняет всё из /docker-entrypoint-initdb.d/*.sh
 # ПОСЛЕ старта IRIS-инстанса.
 #
-# Порядок:
-#   1) Создаём namespace SMARTRENT inline (классы ещё не скомпилированы).
-#   2) В SMARTRENT грузим и компилируем все классы пакета SmartRent.
-#   3) В %SYS регистрируем REST web-приложение /api/smartrent/v1.
-#   4) В SMARTRENT грузим демо-данные.
-#
-# НИКАКИХ многострочных if{}else{} — только одноместные write/do, чтобы
-# IRIS-терминал не выдавал <SYNTAX> при первом не-bracketed if.
+# КЛЮЧЕВОЙ МОМЕНТ: всё делается в ОДНОЙ iris session.
+# Если делать в нескольких — между ними IRIS не успевает активировать
+# конфигурацию нового namespace, и второй iris session ловит Access Denied.
+# Внутри одной сессии zn "SMARTRENT" работает сразу после Config.Namespaces.Create,
+# потому что текущий процесс читает свой же обновлённый namespace-map.
 set -u
 LOG="[smartrent-init]"
 
 echo "$LOG === Smart Rent setup starting ==="
 
-# Шаг 1: namespace SMARTRENT inline (без обращений к нашим классам).
 iris session iris -U%SYS <<'OS'
+zn "%SYS"
+
+; ===== Шаг 1: создаём БД и namespace SMARTRENT =====
 set ns="SMARTRENT"
 set dataDir="/durable/db/"_ns_"/"
 set codeDir="/durable/db/"_ns_"CODE/"
 do ##class(%File).CreateDirectoryChain(dataDir)
 do ##class(%File).CreateDirectoryChain(codeDir)
-write !,"[ns] data dir: ",dataDir,!
-write "[ns] code dir: ",codeDir,!
-write "[ns] data db exists: ",##class(SYS.Database).%ExistsId(dataDir),!
-write "[ns] code db exists: ",##class(SYS.Database).%ExistsId(codeDir),!
+
+write !,"[ns] data db exists before: ",##class(SYS.Database).%ExistsId(dataDir),!
 do:'##class(SYS.Database).%ExistsId(dataDir) ##class(SYS.Database).CreateDatabase(dataDir)
 do:'##class(SYS.Database).%ExistsId(codeDir) ##class(SYS.Database).CreateDatabase(codeDir)
-write "[ns] config db exists: ",##class(Config.Databases).Exists(ns),!
+write "[ns] data db exists after: ",##class(SYS.Database).%ExistsId(dataDir),!
+
 kill p set p("Directory")=dataDir
 do:'##class(Config.Databases).Exists(ns) ##class(Config.Databases).Create(ns,.p)
 kill p set p("Directory")=codeDir
 do:'##class(Config.Databases).Exists(ns_"CODE") ##class(Config.Databases).Create(ns_"CODE",.p)
-write "[ns] namespace exists: ",##class(Config.Namespaces).Exists(ns),!
-kill q set q("Globals")=ns,q("Routines")=ns_"CODE",q("SysGlobals")="IRISSYS",q("SysRoutines")="IRISSYS",q("TempGlobals")="IRISTEMP"
+
+kill q
+set q("Globals")=ns,q("Routines")=ns_"CODE"
+set q("SysGlobals")="IRISSYS",q("SysRoutines")="IRISSYS",q("TempGlobals")="IRISTEMP"
 do:'##class(Config.Namespaces).Exists(ns) ##class(Config.Namespaces).Create(ns,.q)
-do ##class(Config.CPF).Reload()
-write "[ns] mounted data: ",##class(SYS.Database).IsMounted(dataDir),!
-do:'##class(SYS.Database).IsMounted(dataDir) ##class(SYS.Database).MountDatabase(dataDir)
-do:'##class(SYS.Database).IsMounted(codeDir) ##class(SYS.Database).MountDatabase(codeDir)
-write "[ns] OK",!
-halt
-OS
-echo "$LOG step 1 (namespace) done"
+write "[ns] namespace exists after: ",##class(Config.Namespaces).Exists(ns),!
 
-# Шаг 2: компиляция классов уже в SMARTRENT.
-iris session iris -U"SMARTRENT" <<'OS'
-write "[load] starting LoadDir /opt/smartrent/src",!
-do $system.OBJ.LoadDir("/opt/smartrent/src","ck",,1)
+; Дать процессу момент перечитать namespace-map.
+hang 1
+
+; ===== Шаг 2: переходим в SMARTRENT и грузим классы =====
+zn "SMARTRENT"
+write !,"[load] now in namespace: ",$namespace,!
+write "[load] starting LoadDir /opt/smartrent/src ...",!
+set sc=$system.OBJ.LoadDir("/opt/smartrent/src","ck",,1)
+write "[load] LoadDir status: ",$system.Status.GetErrorText(sc),!
 do $system.OBJ.CompilePackage("SmartRent","ck")
+write "[load] dispatch defined : ",##class(%Dictionary.ClassDefinition).%ExistsId("SmartRent.REST.Dispatch"),!
 write "[load] dispatch compiled: ",##class(%Dictionary.CompiledClass).%ExistsId("SmartRent.REST.Dispatch"),!
-halt
-OS
-echo "$LOG step 2 (compile classes) done"
 
-# Шаг 3: web-app /api/smartrent/v1 inline.
-iris session iris -U%SYS <<'OS'
+; ===== Шаг 3: web-app /api/smartrent/v1 =====
+zn "%SYS"
 set app="/api/smartrent/v1"
-write "[web] exists: ",##class(Security.Applications).Exists(app),!
 do:##class(Security.Applications).Exists(app) ##class(Security.Applications).Delete(app)
 kill props
 set props("NameSpace")="SMARTRENT"
@@ -71,17 +66,16 @@ set props("Enabled")=1
 set props("CSPZENEnabled")=1
 set props("DeepSeeEnabled")=0
 set sc=##class(Security.Applications).Create(app,.props)
-write "[web] create status: ",$system.Status.GetErrorText(sc),!
+write !,"[web] create status: ",$system.Status.GetErrorText(sc),!
 write "[web] now exists: ",##class(Security.Applications).Exists(app),!
-halt
-OS
-echo "$LOG step 3 (web app) done"
 
-# Шаг 4: фикстуры.
-iris session iris -U"SMARTRENT" <<'OS'
+; ===== Шаг 4: фикстуры =====
+zn "SMARTRENT"
+write !,"[fixtures] loading...",!
 do ##class(SmartRent.Setup.Fixtures).Load()
+write "[fixtures] done",!
+
 halt
 OS
-echo "$LOG step 4 (fixtures) done"
 
 echo "$LOG === Smart Rent setup finished ==="
