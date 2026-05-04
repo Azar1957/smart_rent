@@ -13,12 +13,15 @@ COPY --chown=irisowner:irisowner src   /opt/smartrent/src
 # /docker-entrypoint-initdb.d/*.sh ПОСЛЕ старта IRIS-инстанса.
 COPY --chown=irisowner:irisowner init/01-smartrent-setup.sh \
      /docker-entrypoint-initdb.d/01-smartrent-setup.sh
+COPY --chown=irisowner:irisowner init/diag.sh \
+     /opt/smartrent/diag.sh
 
 # Принудительно убираем CRLF (если файл попал на Windows с autocrlf=true)
 # и делаем исполняемым. Без этого "exec ... no such file" из-за shebang
 # "#!/bin/bash\r".
 RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/01-smartrent-setup.sh \
- && chmod +x /docker-entrypoint-initdb.d/01-smartrent-setup.sh
+ && sed -i 's/\r$//' /opt/smartrent/diag.sh \
+ && chmod +x /docker-entrypoint-initdb.d/01-smartrent-setup.sh /opt/smartrent/diag.sh
 
 USER irisowner
 
