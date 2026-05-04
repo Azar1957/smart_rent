@@ -8,23 +8,37 @@
 
 ---
 
-## Шаг 1 — SSH-ключ на вашем ПК (Windows PowerShell)
+## Шаг 1 — SSH-ключ на вашем компьютере
+
+SSH-ключ это пара файлов, он не привязан к ОС — сгенерируйте его на той
+машине, с которой вам удобнее работать. Файлы можно переносить между
+macOS/Linux/Windows, они идентичны.
+
+### macOS / Linux (Terminal, iTerm2)
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/smartrent_deploy -N "" -C "smartrent-deploy"
+```
+
+Посмотреть публичную часть (нужна в шаге 2):
+
+```bash
+cat ~/.ssh/smartrent_deploy.pub
+```
+
+Посмотреть приватную часть (нужна в шаге 3, копировать целиком включая
+`-----BEGIN...-----` и `-----END...-----`):
+
+```bash
+cat ~/.ssh/smartrent_deploy
+```
+
+### Windows (PowerShell)
 
 ```powershell
 ssh-keygen -t ed25519 -f $env:USERPROFILE\.ssh\smartrent_deploy -N '""' -C "smartrent-deploy"
-```
-
-Посмотреть публичную часть (понадобится в шаге 2):
-
-```powershell
-type $env:USERPROFILE\.ssh\smartrent_deploy.pub
-```
-
-Посмотреть приватную часть (понадобится в шаге 3, скопируйте целиком
-включая `-----BEGIN...-----` и `-----END...-----`):
-
-```powershell
-type $env:USERPROFILE\.ssh\smartrent_deploy
+type $env:USERPROFILE\.ssh\smartrent_deploy.pub     # публичная часть
+type $env:USERPROFILE\.ssh\smartrent_deploy         # приватная часть
 ```
 
 ## Шаг 2 — Первичная настройка сервера (один раз)
@@ -54,6 +68,16 @@ sudo grep IRIS_PASSWORD /srv/smartrent/.env
 ```
 
 Отключитесь и проверьте доступ по SSH-ключу:
+
+**macOS / Linux:**
+
+```bash
+ssh -i ~/.ssh/smartrent_deploy deploy@<IP_СЕРВЕРА>
+docker --version
+exit
+```
+
+**Windows:**
 
 ```powershell
 ssh -i $env:USERPROFILE\.ssh\smartrent_deploy deploy@<IP_СЕРВЕРА>
