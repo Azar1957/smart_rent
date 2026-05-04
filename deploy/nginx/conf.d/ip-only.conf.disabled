@@ -1,0 +1,34 @@
+# Режим без домена: фронт и REST на http://<IP>/.
+# Активировать: переименовать в ip-only.conf и удалить domain.conf.
+# Включается автоматически скриптом deploy/render-nginx.sh, если APP_DOMAIN=IP.
+
+server {
+    listen 80 default_server;
+    server_name _;
+
+    client_max_body_size 50m;
+
+    # Фронтенд (Next.js)
+    location / {
+        proxy_pass http://frontend:3000;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 120s;
+    }
+
+    # REST IRIS — браузер ходит на /api/iris/*, мы пробрасываем в IRIS.
+    location /api/iris/ {
+        rewrite ^/api/iris/(.*)$ /api/smartrent/v1/$1 break;
+        proxy_pass http://iris:52773;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 120s;
+    }
+}
