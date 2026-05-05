@@ -52,7 +52,7 @@ ClassMethod Reject(pId As %String) As %Status
     set tStatus = ##class(SmartRent.REST.Dispatch).%CurrentUser(.tUser)
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error("unauthorized", 401)
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
-    set tStatus = ##class(SmartRent.Service.Booking).Reject(pId, tUser, $get(tBody.reason))
+    set tStatus = ##class(SmartRent.Service.Booking).Reject(pId, tUser, ##class(SmartRent.Util.Json).Get(tBody, "reason"))
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON({"ok":1})
 }

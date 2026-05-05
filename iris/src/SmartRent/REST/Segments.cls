@@ -34,18 +34,18 @@ ClassMethod Create(pPid As %String) As %Status
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
     set s = ##class(SmartRent.Model.Segment).%New()
     set s.Property      = tProp
-    set s.Code          = $get(tBody.code)
-    set s.Title         = $get(tBody.title)
-    set s.Description   = $get(tBody.description)
-    set s.Area          = $get(tBody.area)
-    set s.Beds          = $select($get(tBody.beds)>0:tBody.beds, 1:1)
-    set s.Furnished     = ''$get(tBody.furnished)
-    set s.MonthlyPrice  = $get(tBody.monthlyPrice)
-    set s.Currency      = $select($get(tBody.currency)'="":tBody.currency, 1:"USD")
-    set s.DepositAmount = $get(tBody.depositAmount)
-    set s.SeasonalFactors = ##class(SmartRent.Util.Json).Stringify($get(tBody.seasonal))
-    set s.Amenities     = ##class(SmartRent.Util.Json).Stringify($get(tBody.amenities))
-    set s.Rules         = ##class(SmartRent.Util.Json).Stringify($get(tBody.rules))
+    set s.Code          = ##class(SmartRent.Util.Json).Get(tBody, "code")
+    set s.Title         = ##class(SmartRent.Util.Json).Get(tBody, "title")
+    set s.Description   = ##class(SmartRent.Util.Json).Get(tBody, "description")
+    set s.Area          = ##class(SmartRent.Util.Json).GetNumber(tBody, "area")
+    set s.Beds          = $select(##class(SmartRent.Util.Json).GetNumber(tBody, "beds")>0:##class(SmartRent.Util.Json).GetNumber(tBody, "beds"), 1:1)
+    set s.Furnished     = ##class(SmartRent.Util.Json).GetBool(tBody, "furnished", 1)
+    set s.MonthlyPrice  = ##class(SmartRent.Util.Json).GetNumber(tBody, "monthlyPrice")
+    set s.Currency      = ##class(SmartRent.Util.Json).Get(tBody, "currency", "USD")
+    set s.DepositAmount = ##class(SmartRent.Util.Json).GetNumber(tBody, "depositAmount")
+    set s.SeasonalFactors = ##class(SmartRent.Util.Json).GetJSON(tBody, "seasonal", "")
+    set s.Amenities     = ##class(SmartRent.Util.Json).GetJSON(tBody, "amenities", "[]")
+    set s.Rules         = ##class(SmartRent.Util.Json).GetJSON(tBody, "rules", "[]")
     set tStatus = s.%Save()
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON(s.ToJSON(), 201)
@@ -61,12 +61,12 @@ ClassMethod Update(pId As %String) As %Status
         quit ##class(SmartRent.REST.Dispatch).%Error("forbidden", 403)
     }
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
-    if $get(tBody.title)         '= "" set s.Title        = tBody.title
-    if $get(tBody.description)   '= "" set s.Description  = tBody.description
-    if $data(tBody.area)             set s.Area           = tBody.area
-    if $data(tBody.monthlyPrice)     set s.MonthlyPrice   = tBody.monthlyPrice
-    if $data(tBody.depositAmount)    set s.DepositAmount  = tBody.depositAmount
-    if $data(tBody.status)           set s.Status         = tBody.status
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "title")        if v'="" set s.Title       = v
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "description")  if v'="" set s.Description = v
+    if $isobject(tBody) && tBody.%IsDefined("area")           set s.Area          = ##class(SmartRent.Util.Json).GetNumber(tBody, "area")
+    if $isobject(tBody) && tBody.%IsDefined("monthlyPrice")   set s.MonthlyPrice  = ##class(SmartRent.Util.Json).GetNumber(tBody, "monthlyPrice")
+    if $isobject(tBody) && tBody.%IsDefined("depositAmount")  set s.DepositAmount = ##class(SmartRent.Util.Json).GetNumber(tBody, "depositAmount")
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "status")       if v'="" set s.Status      = v
     set tStatus = s.%Save()
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON(s.ToJSON())

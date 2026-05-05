@@ -16,7 +16,9 @@ ClassMethod Login() As %Status
 {
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
     set tStatus = ##class(SmartRent.Service.Auth).Login(
-        $get(tBody.email), $get(tBody.password), .tToken, .tUser)
+        ##class(SmartRent.Util.Json).Get(tBody, "email"),
+        ##class(SmartRent.Util.Json).Get(tBody, "password"),
+        .tToken, .tUser)
     if $$$ISERR(tStatus) {
         quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 401)
     }
