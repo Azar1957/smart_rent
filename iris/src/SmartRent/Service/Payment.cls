@@ -18,7 +18,7 @@ ClassMethod CreateDeposit(pLease As SmartRent.Model.Lease) As %Status
     set p.Amount   = pLease.DepositAmount
     set p.Currency = pLease.Currency
     set p.DueDate  = pLease.StartDate
-    set p.Description = "Залог по договору #" _ pLease.%Id()
+    set p.Description = "Deposit for lease #" _ pLease.%Id()
     quit p.%Save()
 }
 
@@ -31,7 +31,7 @@ ClassMethod CreateMonthlyRent(pLease As SmartRent.Model.Lease, pDueDate As %Date
     set p.Amount   = pLease.MonthlyPrice
     set p.Currency = pLease.Currency
     set p.DueDate  = pDueDate
-    set p.Description = "Аренда за " _ $extract($ZDATE(pDueDate, 3), 1, 7)
+    set p.Description = "Rent for " _ $extract($ZDATE(pDueDate, 3), 1, 7)
     quit p.%Save()
 }
 
@@ -47,8 +47,8 @@ ClassMethod MarkPaid(pPaymentId As %String, pProvider As %String, pProviderId As
     set tStatus = p.%Save()
     if $$$ISOK(tStatus) {
         do ##class(SmartRent.Service.Notification).Send(
-            p.Payer, "payment", "Платёж принят",
-            "Платёж #" _ p.%Id() _ " на сумму " _ p.Amount _ " " _ p.Currency _ " зачислен.",
+            p.Payer, "payment", "Payment received",
+            "Payment #" _ p.%Id() _ " of " _ p.Amount _ " " _ p.Currency _ " has been confirmed.",
             "payment", p.%Id())
     }
     quit tStatus
@@ -85,7 +85,7 @@ ClassMethod ProcessOverdue() As %Integer
             set pen.Amount   = tPenalty
             set pen.Currency = ccy
             set pen.DueDate  = tToday
-            set pen.Description = "Пеня за просрочку платежа #" _ id _ " (" _ tDays _ " д.)"
+            set pen.Description = "Late fee for payment #" _ id _ " (" _ tDays _ " day(s) overdue)"
             do pen.%Save()
         }
         set tCount = tCount + 1
@@ -125,7 +125,7 @@ ClassMethod SplitUtility(pBillId As %String) As %Status
         set p.Amount   = tAmount
         set p.Currency = tBill.Currency
         set p.DueDate  = $select(tBill.DueDate'="":tBill.DueDate, 1:+$HOROLOG+14)
-        set p.Description = "Коммунальные (" _ tBill.Kind _ ") за " _ tBill.Period
+        set p.Description = "Utilities (" _ tBill.Kind _ ") for " _ tBill.Period
         do p.%Save()
     }
     quit $$$OK
