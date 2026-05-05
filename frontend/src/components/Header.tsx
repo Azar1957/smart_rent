@@ -1,13 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
 import { LOCALES } from '@/i18n/dictionaries';
 import { CURRENCY_CODES, CURRENCIES } from '@/lib/currency';
 import { Globe2, Menu, LogOut } from 'lucide-react';
 import { Logo } from '@/components/Logo';
+
+interface NavItem {
+  href: string;
+  label: string;
+  /** Префиксы, которые тоже должны считаться «этой» вкладкой. */
+  matchPrefixes?: string[];
+}
 
 export function Header() {
   const { t, locale, setLocale } = useT();
@@ -16,10 +24,30 @@ export function Header() {
   const currency = useAuth((s) => s.currency);
   const setCurrency = useAuth((s) => s.setCurrency);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname() || '/';
 
-  useEffect(() => {
-    if (user?.language && user.language !== locale) setLocale(user.language);
-  }, [user, locale, setLocale]);
+  // Подсветка вкладки. Stays активна на главной и страницах объявлений
+  // (`/listings/...`); Payments — на хабе и его подмаршрутах
+  // (`/payments/rent`, `/payments/utilities`); Properties — на
+  // `/properties` и `/properties/:id`.
+  const items: NavItem[] = [
+    { href: '/', label: t.nav.stays, matchPrefixes: ['/listings'] },
+    ...(user
+      ? [
+          { href: '/dashboard', label: t.nav.dashboard },
+          { href: '/properties', label: t.nav.properties, matchPrefixes: ['/properties/'] },
+          { href: '/bookings', label: t.nav.bookings },
+          { href: '/payments', label: t.nav.payments, matchPrefixes: ['/payments/'] },
+        ]
+      : []),
+  ];
+
+  function isActive(item: NavItem) {
+    if (item.href === '/') return pathname === '/' || (item.matchPrefixes ?? []).some((p) => pathname.startsWith(p));
+    if (pathname === item.href) return true;
+    if (pathname.startsWith(item.href + '/')) return true;
+    return (item.matchPrefixes ?? []).some((p) => pathname.startsWith(p));
+  }
 
   return (
     <header className="sticky top-0 z-30 bg-canvas/95 backdrop-blur border-b border-obsidian/10">
@@ -29,25 +57,16 @@ export function Header() {
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6 ml-8">
-          <Link href="/" className="nav-link-active">
-            {t.nav.stays}
-          </Link>
-          {user ? (
-            <>
-              <Link href="/dashboard" className="nav-link">
-                {t.nav.dashboard}
-              </Link>
-              <Link href="/properties" className="nav-link">
-                {t.nav.properties}
-              </Link>
-              <Link href="/bookings" className="nav-link">
-                {t.nav.bookings}
-              </Link>
-              <Link href="/payments" className="nav-link">
-                {t.nav.payments}
-              </Link>
-            </>
-          ) : null}
+          {items.map((it) => (
+            <Link
+              key={it.href}
+              href={it.href}
+              aria-current={isActive(it) ? 'page' : undefined}
+              className={isActive(it) ? 'nav-link-active' : 'nav-link'}
+            >
+              {it.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
@@ -84,34 +103,28 @@ export function Header() {
       {menuOpen ? (
         <div className="lg:hidden border-t border-obsidian/10 bg-canvas">
           <div className="mx-auto max-w-page px-6 py-4 flex flex-col gap-3">
-            <Link onClick={() => setMenuOpen(false)} href="/" className="nav-link">
-              {t.nav.stays}
-            </Link>
+            {items.map((it) => (
+              <Link
+                key={it.href}
+                onClick={() => setMenuOpen(false)}
+                href={it.href}
+                aria-current={isActive(it) ? 'page' : undefined}
+                className={isActive(it) ? 'nav-link-active' : 'nav-link'}
+              >
+                {it.label}
+              </Link>
+            ))}
             {user ? (
-              <>
-                <Link onClick={() => setMenuOpen(false)} href="/dashboard" className="nav-link">
-                  {t.nav.dashboard}
-                </Link>
-                <Link onClick={() => setMenuOpen(false)} href="/properties" className="nav-link">
-                  {t.nav.properties}
-                </Link>
-                <Link onClick={() => setMenuOpen(false)} href="/bookings" className="nav-link">
-                  {t.nav.bookings}
-                </Link>
-                <Link onClick={() => setMenuOpen(false)} href="/payments" className="nav-link">
-                  {t.nav.payments}
-                </Link>
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                    logout();
-                  }}
-                  className="btn-obsidian self-start"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {t.nav.logout}
-                </button>
-              </>
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  logout();
+                }}
+                className="btn-obsidian self-start"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                {t.nav.logout}
+              </button>
             ) : (
               <div className="flex gap-2 pt-2">
                 <Link onClick={() => setMenuOpen(false)} href="/login" className="btn-outline">
@@ -180,4 +193,3 @@ function LocaleSwitcher({
     </label>
   );
 }
-
