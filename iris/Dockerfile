@@ -15,13 +15,20 @@ COPY --chown=irisowner:irisowner init/01-smartrent-setup.sh \
      /docker-entrypoint-initdb.d/01-smartrent-setup.sh
 COPY --chown=irisowner:irisowner init/diag.sh \
      /opt/smartrent/diag.sh
+COPY --chown=irisowner:irisowner init/reinstall.sh \
+     /opt/smartrent/reinstall.sh
 
 # Принудительно убираем CRLF (если файл попал на Windows с autocrlf=true)
-# и делаем исполняемым. Без этого "exec ... no such file" из-за shebang
-# "#!/bin/bash\r".
+# и делаем исполняемым.
+# Также готовим /durable: создаём с правильными правами, чтобы при первом
+# монтировании пустого Docker volume он унаследовал права irisowner
+# (Docker копирует initial state из образа в пустой volume).
 RUN sed -i 's/\r$//' /docker-entrypoint-initdb.d/01-smartrent-setup.sh \
- && sed -i 's/\r$//' /opt/smartrent/diag.sh \
- && chmod +x /docker-entrypoint-initdb.d/01-smartrent-setup.sh /opt/smartrent/diag.sh
+                     /opt/smartrent/diag.sh /opt/smartrent/reinstall.sh \
+ && chmod +x /docker-entrypoint-initdb.d/01-smartrent-setup.sh \
+             /opt/smartrent/diag.sh /opt/smartrent/reinstall.sh \
+ && mkdir -p /durable/db /durable/journal \
+ && chown -R irisowner:irisowner /durable /opt/smartrent
 
 USER irisowner
 

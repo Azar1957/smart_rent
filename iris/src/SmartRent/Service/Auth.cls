@@ -8,7 +8,7 @@ Parameter TOKENTTL As %Integer = 86400; // 24 ч
 ClassMethod Register(pPayload As %DynamicObject, Output pUser As SmartRent.Model.User) As %Status
 {
     set pUser = ""
-    set tEmail = $$$lcase($get(pPayload.email))
+    set tEmail = $zconvert($get(pPayload.email),"L")
     if tEmail = "" quit $$$ERROR($$$GeneralError, "email is required")
 
     if ##class(SmartRent.Model.User).EmailIdxExists(tEmail) {
@@ -35,7 +35,7 @@ ClassMethod Register(pPayload As %DynamicObject, Output pUser As SmartRent.Model
 ClassMethod Login(pEmail As %String, pPassword As %String, Output pToken As %String, Output pUser As SmartRent.Model.User) As %Status
 {
     set pToken = "", pUser = ""
-    set tEmail = $$$lcase(pEmail)
+    set tEmail = $zconvert(pEmail,"L")
 
     set tId = ##class(SmartRent.Model.User).EmailIdxOpen(tEmail, , .tStatus)
     if '$isobject(tId) quit $$$ERROR($$$GeneralError, "invalid credentials")
@@ -83,10 +83,12 @@ ClassMethod GenerateToken() As %String
 {
     set tBin = $system.Encryption.GenCryptRand(32, 1)
     set tHex = ""
+    set tDigits = "0123456789abcdef"
     for i = 1:1:$length(tBin) {
-        set tHex = tHex _ $$$NUMTOSTR($ascii(tBin, i), 16)
+        set b = $ascii(tBin, i)
+        set tHex = tHex _ $extract(tDigits, (b \ 16) + 1) _ $extract(tDigits, (b # 16) + 1)
     }
-    quit $$$lcase(tHex)
+    quit tHex
 }
 
 }

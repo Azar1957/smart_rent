@@ -11,10 +11,10 @@ Property StartDate As %Date [ Required ];
 Property EndDate   As %Date [ Required ];
 
 /// pending | approved | rejected | cancelled | completed
-Property Status As %String(VALUELIST = ",pending,approved,rejected,cancelled,completed", DEFAULT = "pending");
+Property Status As %String(VALUELIST = ",pending,approved,rejected,cancelled,completed") [ InitialExpression = "pending" ];
 
 Property TotalPrice As %Numeric(SCALE = 2);
-Property Currency   As %String(MAXLEN = 3, DEFAULT = "USD");
+Property Currency   As %String(MAXLEN = 3) [ InitialExpression = "USD" ];
 
 Property Note       As %String(MAXLEN = 2000);
 Property RejectReason As %String(MAXLEN = 1000);

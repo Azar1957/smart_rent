@@ -8,16 +8,16 @@ Property Lease   As SmartRent.Model.Lease [ Required ];
 Property Payer   As SmartRent.Model.User  [ Required ];
 
 /// rent | deposit | utility | penalty | refund
-Property Kind As %String(VALUELIST = ",rent,deposit,utility,penalty,refund", DEFAULT = "rent") [ Required ];
+Property Kind As %String(VALUELIST = ",rent,deposit,utility,penalty,refund") [ Required, InitialExpression = "rent" ];
 
 Property Amount   As %Numeric(SCALE = 2) [ Required ];
-Property Currency As %String(MAXLEN = 3, DEFAULT = "USD");
+Property Currency As %String(MAXLEN = 3) [ InitialExpression = "USD" ];
 
 Property DueDate As %Date;
 Property PaidAt  As %TimeStamp;
 
 /// pending | paid | overdue | cancelled | refunded
-Property Status As %String(VALUELIST = ",pending,paid,overdue,cancelled,refunded", DEFAULT = "pending");
+Property Status As %String(VALUELIST = ",pending,paid,overdue,cancelled,refunded") [ InitialExpression = "pending" ];
 
 /// Внешний ID платёжной системы (Stripe/PayPal).
 Property GatewayProvider As %String(MAXLEN = 50);

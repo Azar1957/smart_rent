@@ -15,12 +15,12 @@ Property PasswordHash As %String(MAXLEN = 256) [ Internal ];
 Property PasswordSalt As %String(MAXLEN = 64)  [ Internal ];
 
 /// Роль: admin | landlord | tenant.
-Property Role As %String(VALUELIST = ",admin,landlord,tenant", DEFAULT = "tenant") [ Required ];
+Property Role As %String(VALUELIST = ",admin,landlord,tenant") [ Required, InitialExpression = "tenant" ];
 
 Property FirstName  As %String(MAXLEN = 100);
 Property LastName   As %String(MAXLEN = 100);
 Property Phone      As %String(MAXLEN = 32);
-Property Language   As %String(VALUELIST = ",ru,en,es", DEFAULT = "ru");
+Property Language   As %String(VALUELIST = ",ru,en,es") [ InitialExpression = "ru" ];
 
 /// Двухфакторная аутентификация (TOTP secret в base32). Опционально.
 Property TwoFactorSecret As %String(MAXLEN = 64);

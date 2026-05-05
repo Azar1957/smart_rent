@@ -18,11 +18,11 @@ Property Furnished As %Boolean [ InitialExpression = 1 ];
 
 /// Базовая месячная цена.
 Property MonthlyPrice As %Numeric(SCALE = 2) [ Required ];
-Property Currency     As %String(MAXLEN = 3, DEFAULT = "USD");
+Property Currency     As %String(MAXLEN = 3) [ InitialExpression = "USD" ];
 Property DepositAmount As %Numeric(SCALE = 2);
 
 /// Текущий статус.
-Property Status As %String(VALUELIST = ",available,reserved,occupied,maintenance", DEFAULT = "available");
+Property Status As %String(VALUELIST = ",available,reserved,occupied,maintenance") [ InitialExpression = "available" ];
 
 /// Сезонные коэффициенты (JSON: {"01":1.0,"06":1.2,...}).
 Property SeasonalFactors As %String(MAXLEN = 1000);
