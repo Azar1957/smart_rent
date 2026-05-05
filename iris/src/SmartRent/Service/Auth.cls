@@ -8,7 +8,7 @@ Parameter TOKENTTL As %Integer = 86400; // 24 ч
 ClassMethod Register(pPayload As %DynamicObject, Output pUser As SmartRent.Model.User) As %Status
 {
     set pUser = ""
-    set tEmail = $zconvert($get(pPayload.email),"L")
+    set tEmail = $zconvert(##class(SmartRent.Util.Json).Get(pPayload, "email"), "L")
     if tEmail = "" quit $$$ERROR($$$GeneralError, "email is required")
 
     if ##class(SmartRent.Model.User).EmailIdxExists(tEmail) {
@@ -17,12 +17,12 @@ ClassMethod Register(pPayload As %DynamicObject, Output pUser As SmartRent.Model
 
     set tUser = ##class(SmartRent.Model.User).%New()
     set tUser.Email     = tEmail
-    set tUser.Role      = $select($get(pPayload.role)'="":pPayload.role, 1:"tenant")
-    set tUser.FirstName = $get(pPayload.firstName)
-    set tUser.LastName  = $get(pPayload.lastName)
-    set tUser.Phone     = $get(pPayload.phone)
-    set tUser.Language  = $select($get(pPayload.language)'="":pPayload.language, 1:"ru")
-    do tUser.SetPassword($get(pPayload.password))
+    set tUser.Role      = ##class(SmartRent.Util.Json).Get(pPayload, "role", "tenant")
+    set tUser.FirstName = ##class(SmartRent.Util.Json).Get(pPayload, "firstName")
+    set tUser.LastName  = ##class(SmartRent.Util.Json).Get(pPayload, "lastName")
+    set tUser.Phone     = ##class(SmartRent.Util.Json).Get(pPayload, "phone")
+    set tUser.Language  = ##class(SmartRent.Util.Json).Get(pPayload, "language", "ru")
+    do tUser.SetPassword(##class(SmartRent.Util.Json).Get(pPayload, "password"))
 
     set tStatus = tUser.%Save()
     if $$$ISERR(tStatus) quit tStatus

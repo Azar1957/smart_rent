@@ -10,8 +10,8 @@ ClassMethod Request(pSegmentId As %String, pTenant As SmartRent.Model.User, pPay
     if '$isobject(tSegment) quit $$$ERROR($$$GeneralError, "segment not found")
     if tSegment.Status = "maintenance" quit $$$ERROR($$$GeneralError, "segment in maintenance")
 
-    set tStart = $ZDATEH($get(pPayload.startDate), 3)
-    set tEnd   = $ZDATEH($get(pPayload.endDate),   3)
+    set tStart = $ZDATEH(##class(SmartRent.Util.Json).Get(pPayload, "startDate"), 3, , , , , , , "")
+    set tEnd   = $ZDATEH(##class(SmartRent.Util.Json).Get(pPayload, "endDate"),   3, , , , , , , "")
     if (tStart = "") || (tEnd = "") || (tEnd <= tStart) {
         quit $$$ERROR($$$GeneralError, "invalid date range")
     }
@@ -30,7 +30,7 @@ ClassMethod Request(pSegmentId As %String, pTenant As SmartRent.Model.User, pPay
     set tB.EndDate    = tEnd
     set tB.TotalPrice = tPrice
     set tB.Currency   = tSegment.Currency
-    set tB.Note       = $get(pPayload.note)
+    set tB.Note       = ##class(SmartRent.Util.Json).Get(pPayload, "note")
     set tStatus = tB.%Save()
     if $$$ISERR(tStatus) quit tStatus
 

@@ -36,18 +36,18 @@ ClassMethod Create() As %Status
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
     set tP = ##class(SmartRent.Model.Property).%New()
     set tP.Owner       = tUser
-    set tP.Title       = $get(tBody.title)
-    set tP.Description = $get(tBody.description)
-    set tP.Country     = $get(tBody.country)
-    set tP.City        = $get(tBody.city)
-    set tP.Address     = $get(tBody.address)
-    set tP.Lat         = $get(tBody.lat)
-    set tP.Lng         = $get(tBody.lng)
-    set tP.PropertyType= $select($get(tBody.type)'="":tBody.type, 1:"apartment")
-    set tP.TotalRooms  = $get(tBody.totalRooms)
-    set tP.TotalArea   = $get(tBody.totalArea)
-    set tP.Floor       = $get(tBody.floor)
-    set tP.HasElevator = ''$get(tBody.hasElevator)
+    set tP.Title       = ##class(SmartRent.Util.Json).Get(tBody, "title")
+    set tP.Description = ##class(SmartRent.Util.Json).Get(tBody, "description")
+    set tP.Country     = ##class(SmartRent.Util.Json).Get(tBody, "country")
+    set tP.City        = ##class(SmartRent.Util.Json).Get(tBody, "city")
+    set tP.Address     = ##class(SmartRent.Util.Json).Get(tBody, "address")
+    set tP.Lat         = ##class(SmartRent.Util.Json).GetNumber(tBody, "lat")
+    set tP.Lng         = ##class(SmartRent.Util.Json).GetNumber(tBody, "lng")
+    set tP.PropertyType= ##class(SmartRent.Util.Json).Get(tBody, "type", "apartment")
+    set tP.TotalRooms  = ##class(SmartRent.Util.Json).GetNumber(tBody, "totalRooms")
+    set tP.TotalArea   = ##class(SmartRent.Util.Json).GetNumber(tBody, "totalArea")
+    set tP.Floor       = ##class(SmartRent.Util.Json).GetNumber(tBody, "floor")
+    set tP.HasElevator = ##class(SmartRent.Util.Json).GetBool(tBody, "hasElevator")
     set tStatus = tP.%Save()
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON(tP.ToJSON(), 201)
@@ -65,11 +65,13 @@ ClassMethod Update(pId As %String) As %Status
     }
 
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
-    if $get(tBody.title)       '= "" set tP.Title       = tBody.title
-    if $get(tBody.description) '= "" set tP.Description = tBody.description
-    if $get(tBody.city)        '= "" set tP.City        = tBody.city
-    if $get(tBody.address)     '= "" set tP.Address     = tBody.address
-    if $data(tBody.active)           set tP.Active      = ''tBody.active
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "title")        if v'="" set tP.Title       = v
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "description")  if v'="" set tP.Description = v
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "city")         if v'="" set tP.City        = v
+    set v = ##class(SmartRent.Util.Json).Get(tBody, "address")      if v'="" set tP.Address     = v
+    if $isobject(tBody) && tBody.%IsDefined("active") {
+        set tP.Active = ##class(SmartRent.Util.Json).GetBool(tBody, "active")
+    }
     set tStatus = tP.%Save()
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON(tP.ToJSON())

@@ -33,8 +33,8 @@ ClassMethod Pay(pId As %String) As %Status
     set tBody = ##class(SmartRent.REST.Dispatch).%ReadBody()
     set tStatus = ##class(SmartRent.Service.Payment).MarkPaid(
         pId,
-        $select($get(tBody.provider)'="":tBody.provider, 1:"manual"),
-        $select($get(tBody.providerId)'="":tBody.providerId, 1:"local-" _ pId))
+        ##class(SmartRent.Util.Json).Get(tBody, "provider", "manual"),
+        ##class(SmartRent.Util.Json).Get(tBody, "providerId", "local-" _ pId))
     if $$$ISERR(tStatus) quit ##class(SmartRent.REST.Dispatch).%Error($system.Status.GetErrorText(tStatus), 400)
     set p = ##class(SmartRent.Model.Payment).%OpenId(pId)
     quit ##class(SmartRent.REST.Dispatch).%WriteJSON(p.ToJSON())
