@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
+import { Logo } from '@/components/Logo';
 
 export default function LoginPage() {
   const { t } = useT();
@@ -36,7 +37,10 @@ export default function LoginPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-2xl font-bold mb-6">{t.auth.signIn}</h1>
+      <div className="flex justify-center mb-8">
+        <Logo tone="dark" variant="lockup" size={48} withTagline />
+      </div>
+      <h1 className="text-heading-sm font-bold mb-6 text-center">{t.auth.signIn}</h1>
       <form onSubmit={onSubmit} className="card space-y-4">
         <div>
           <label className="label">{t.auth.email}</label>

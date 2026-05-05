@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/Header';
+import { Logo } from '@/components/Logo';
 
 // Substitute для HelveticaNowDisplay: Manrope (близкая геометрия, поддерживает
 // тонкий и bold-вес, латиницу и кириллицу).
@@ -33,10 +34,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="bg-obsidian text-canvas mt-[68px]">
           <div className="mx-auto max-w-page px-6 py-[60px] grid gap-10 md:grid-cols-4">
             <div className="md:col-span-2">
-              <div className="text-heading-sm font-bold tracking-[-0.3px]">smart rent</div>
-              <p className="mt-3 text-body-sm text-mistx max-w-md">
+              <Logo tone="light" variant="mark" size={40} />
+              <p className="mt-5 text-body-sm text-mistx max-w-md">
                 Long-term apartment rental, redefined. Verified hosts, transparent
                 pricing in your currency, and a single dashboard for the entire lease.
+              </p>
+              <p className="mt-3 text-body-sm font-bold tracking-[0.22em] uppercase text-mistx">
+                Rent smart, live better.
               </p>
             </div>
             <div className="flex flex-col gap-3">
