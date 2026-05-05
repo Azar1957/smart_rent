@@ -42,7 +42,7 @@ export default function PropertyDetail() {
 
 function SegmentForm({ propertyId, onCreated }: { propertyId: string; onCreated: () => void }) {
   const { token } = useAuth();
-  const [form, setForm] = useState({ code: '', title: '', area: 0, monthlyPrice: 0, depositAmount: 0, currency: 'RUB' });
+  const [form, setForm] = useState({ code: '', title: '', area: 0, monthlyPrice: 0, depositAmount: 0, currency: 'EUR' });
   function set<K extends keyof typeof form>(k: K, v: any) { setForm((s) => ({ ...s, [k]: v })); }
   async function submit(e: React.FormEvent) {
     e.preventDefault();
