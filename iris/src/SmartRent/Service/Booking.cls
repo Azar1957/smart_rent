@@ -37,8 +37,8 @@ ClassMethod Request(pSegmentId As %String, pTenant As SmartRent.Model.User, pPay
     do ##class(SmartRent.Service.Notification).Send(
         tSegment.Property.Owner,
         "booking",
-        "Новый запрос на бронирование",
-        "Получен запрос на сегмент " _ tSegment.Code,
+        "New booking request",
+        "A new booking request was received for segment " _ tSegment.Code,
         "booking",
         tB.%Id())
 
@@ -94,8 +94,8 @@ ClassMethod Approve(pBookingId As %String, pLandlord As SmartRent.Model.User, Ou
 
     do ##class(SmartRent.Service.Notification).Send(
         tB.Tenant, "booking",
-        "Бронирование подтверждено",
-        "Подготовлен договор. Перейдите к оплате депозита и аренды.",
+        "Booking confirmed",
+        "Your lease is ready. Please proceed to pay the deposit and rent.",
         "lease", tL.%Id())
 
     set pLease = tL
@@ -114,7 +114,7 @@ ClassMethod Reject(pBookingId As %String, pLandlord As SmartRent.Model.User, pRe
     set tStatus = tB.%Save()
     if $$$ISOK(tStatus) {
         do ##class(SmartRent.Service.Notification).Send(
-            tB.Tenant, "booking", "Бронирование отклонено", pReason, "booking", tB.%Id())
+            tB.Tenant, "booking", "Booking rejected", pReason, "booking", tB.%Id())
     }
     quit tStatus
 }

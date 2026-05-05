@@ -26,6 +26,10 @@
     rgba(0, 0, 0, 0.16) 0px 2px 4px 0px;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   background: var(--color-canvas-white);

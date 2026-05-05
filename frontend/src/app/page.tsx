@@ -25,7 +25,7 @@ export default function Home() {
       <Hero />
 
       {/* Витрина */}
-      <section className="mx-auto max-w-page px-6 pt-[68px] pb-10">
+      <section id="listings" className="mx-auto max-w-page px-6 pt-[68px] pb-10 scroll-mt-[100px]">
         <div className="flex items-end justify-between mb-[31px] flex-wrap gap-4">
           <div>
             <div className="text-body-sm text-mistx mb-2">{t.home.featuredEyebrow}</div>
