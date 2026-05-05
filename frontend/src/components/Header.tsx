@@ -6,7 +6,8 @@ import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
 import { LOCALES } from '@/i18n/dictionaries';
 import { CURRENCY_CODES, CURRENCIES } from '@/lib/currency';
-import { Globe2, Menu, User as UserIcon, LogOut } from 'lucide-react';
+import { Globe2, Menu, LogOut } from 'lucide-react';
+import { Logo } from '@/components/Logo';
 
 export function Header() {
   const { t, locale, setLocale } = useT();
@@ -23,12 +24,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 bg-canvas/95 backdrop-blur border-b border-obsidian/10">
       <div className="mx-auto max-w-page px-6 h-[80px] flex items-center gap-6">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-obsidian font-bold text-heading-sm tracking-[-0.3px]"
-        >
-          <Logo />
-          <span>smart rent</span>
+        <Link href="/" aria-label="Smart Rent — home" className="flex items-center">
+          <Logo tone="dark" variant="mark" size={36} />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6 ml-8">
@@ -184,13 +181,3 @@ function LocaleSwitcher({
   );
 }
 
-function Logo() {
-  return (
-    <span
-      className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-obsidian text-canvas font-bold"
-      aria-hidden
-    >
-      <span className="text-[14px] leading-none">SR</span>
-    </span>
-  );
-}
