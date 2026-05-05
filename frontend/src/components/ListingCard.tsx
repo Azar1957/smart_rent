@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Star, Heart, MapPin } from 'lucide-react';
 import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
@@ -16,14 +17,17 @@ export function ListingCard({ item }: { item: DemoListing }) {
   const kindLabel = t.kind[item.kind];
 
   return (
-    <article className="flex flex-col w-full">
+    <Link
+      href={`/listings/${item.id}`}
+      className="flex flex-col w-full group focus:outline-none focus-visible:ring-2 focus-visible:ring-rausch rounded-card"
+    >
       <div className="relative">
         <div className="aspect-[1/1] w-full overflow-hidden rounded-card bg-pebble">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={item.photo}
             alt={item.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
             loading="lazy"
           />
         </div>
@@ -38,8 +42,13 @@ export function ListingCard({ item }: { item: DemoListing }) {
         ) : null}
 
         <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
           className="absolute top-3 right-3 h-9 w-9 rounded-full flex items-center justify-center bg-black/30 hover:bg-black/40 transition"
           aria-label="save"
+          type="button"
         >
           <Heart className="h-5 w-5 text-white" />
         </button>
@@ -76,6 +85,6 @@ export function ListingCard({ item }: { item: DemoListing }) {
           {t.listing.deposit}: {deposit} · {t.listing.minTerm} {item.minMonths} {t.listing.monthsShort}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

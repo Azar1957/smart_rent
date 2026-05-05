@@ -41,9 +41,42 @@ export interface Dictionary {
     guestFavorite: string;
     perMonth: string;
     deposit: string;
+    utilities: string;
     minTerm: string;
+    minTermLong: string;
     monthsShort: string;
     roomsShort: string;
+    yearsShort: string;
+    rooms: string;
+    area: string;
+    floor: string;
+    builtYear: string;
+    transport: string;
+    kindLabel: string;
+    reviews: string;
+    save: string;
+    share: string;
+    about: string;
+    params: string;
+    amenities: string;
+    rules: string;
+    petsAllowed: string;
+    petsNotAllowed: string;
+    smokingAllowed: string;
+    smokingNotAllowed: string;
+    childrenAllowed: string;
+    childrenNotAllowed: string;
+    location: string;
+    mapPlaceholder: string;
+    requestBooking: string;
+    writeMessage: string;
+    priceDisclaimer: string;
+    hostedBy: string;
+    hostedByAgency: string;
+    yearsHosting: string;
+    verifiedHost: string;
+    agency: string;
+    privatePerson: string;
   };
   auth: {
     email: string;
@@ -125,9 +158,43 @@ export const dictionaries: Record<Locale, Dictionary> = {
       guestFavorite: 'Guest favourite',
       perMonth: '/ month',
       deposit: 'Deposit',
+      utilities: 'Utilities (approx.)',
       minTerm: 'min.',
+      minTermLong: 'Minimum term',
       monthsShort: 'mo.',
       roomsShort: 'rooms',
+      yearsShort: 'yrs',
+      rooms: 'Rooms',
+      area: 'Area',
+      floor: 'Floor',
+      builtYear: 'Built',
+      transport: 'Transport',
+      kindLabel: 'Type',
+      reviews: 'reviews',
+      save: 'Save',
+      share: 'Share',
+      about: 'About this place',
+      params: 'Parameters',
+      amenities: 'What this place offers',
+      rules: 'House rules',
+      petsAllowed: 'Pets allowed',
+      petsNotAllowed: 'No pets',
+      smokingAllowed: 'Smoking allowed',
+      smokingNotAllowed: 'No smoking',
+      childrenAllowed: 'Suitable for children',
+      childrenNotAllowed: 'Not suitable for children',
+      location: 'Where you’ll live',
+      mapPlaceholder: 'Map preview',
+      requestBooking: 'Request to book',
+      writeMessage: 'Message host',
+      priceDisclaimer:
+        'Prices are shown in your selected currency, converted from EUR at indicative rates.',
+      hostedBy: 'Hosted by',
+      hostedByAgency: 'Listed by',
+      yearsHosting: 'years on the platform',
+      verifiedHost: 'Verified',
+      agency: 'Agency',
+      privatePerson: 'Private host',
     },
     auth: {
       email: 'Email',
@@ -207,9 +274,43 @@ export const dictionaries: Record<Locale, Dictionary> = {
       guestFavorite: 'Favorito de huéspedes',
       perMonth: '/ mes',
       deposit: 'Depósito',
+      utilities: 'Servicios (aprox.)',
       minTerm: 'mín.',
+      minTermLong: 'Plazo mínimo',
       monthsShort: 'mes',
       roomsShort: 'hab.',
+      yearsShort: 'años',
+      rooms: 'Habitaciones',
+      area: 'Superficie',
+      floor: 'Planta',
+      builtYear: 'Construido',
+      transport: 'Transporte',
+      kindLabel: 'Tipo',
+      reviews: 'opiniones',
+      save: 'Guardar',
+      share: 'Compartir',
+      about: 'Sobre este alojamiento',
+      params: 'Parámetros',
+      amenities: 'Lo que ofrece este alojamiento',
+      rules: 'Normas',
+      petsAllowed: 'Mascotas permitidas',
+      petsNotAllowed: 'No se admiten mascotas',
+      smokingAllowed: 'Se permite fumar',
+      smokingNotAllowed: 'No se permite fumar',
+      childrenAllowed: 'Apto para niños',
+      childrenNotAllowed: 'No apto para niños',
+      location: 'Dónde vivirás',
+      mapPlaceholder: 'Vista previa del mapa',
+      requestBooking: 'Solicitar reserva',
+      writeMessage: 'Mensaje al anfitrión',
+      priceDisclaimer:
+        'Precios mostrados en la moneda seleccionada, convertidos desde EUR a tipos indicativos.',
+      hostedBy: 'Anfitrión',
+      hostedByAgency: 'Publicado por',
+      yearsHosting: 'años en la plataforma',
+      verifiedHost: 'Verificado',
+      agency: 'Agencia',
+      privatePerson: 'Particular',
     },
     auth: {
       email: 'Correo',
@@ -289,9 +390,43 @@ export const dictionaries: Record<Locale, Dictionary> = {
       guestFavorite: 'Выбор гостей',
       perMonth: '/ мес',
       deposit: 'Депозит',
+      utilities: 'Коммуналка (≈)',
       minTerm: 'мин.',
+      minTermLong: 'Минимальный срок',
       monthsShort: 'мес.',
       roomsShort: 'комн.',
+      yearsShort: 'лет',
+      rooms: 'Комнат',
+      area: 'Площадь',
+      floor: 'Этаж',
+      builtYear: 'Год постройки',
+      transport: 'Транспорт',
+      kindLabel: 'Тип',
+      reviews: 'отзывов',
+      save: 'Сохранить',
+      share: 'Поделиться',
+      about: 'Об объявлении',
+      params: 'Параметры',
+      amenities: 'Что включено',
+      rules: 'Правила',
+      petsAllowed: 'Можно с животными',
+      petsNotAllowed: 'Без животных',
+      smokingAllowed: 'Можно курить',
+      smokingNotAllowed: 'Не курить',
+      childrenAllowed: 'Можно с детьми',
+      childrenNotAllowed: 'Не подходит для детей',
+      location: 'Где вы будете жить',
+      mapPlaceholder: 'Карта (превью)',
+      requestBooking: 'Забронировать',
+      writeMessage: 'Написать арендодателю',
+      priceDisclaimer:
+        'Цены показаны в выбранной вами валюте, пересчёт из EUR по индикативному курсу.',
+      hostedBy: 'Сдаёт',
+      hostedByAgency: 'Сдаёт агентство',
+      yearsHosting: 'лет на платформе',
+      verifiedHost: 'Верифицирован',
+      agency: 'Агентство',
+      privatePerson: 'Частное лицо',
     },
     auth: {
       email: 'Email',
