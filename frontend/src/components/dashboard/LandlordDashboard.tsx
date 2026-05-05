@@ -134,13 +134,32 @@ function PropertyGroup({ group }: { group: PropertyGroupT }) {
 
   const monthlySum = group.rentals.reduce((acc, r) => acc + r.monthlyEur, 0);
 
+  // Шапка-«коллаж» — большое первое фото плюс миниатюры каждого
+  // следующего сегмента: визуально показываем, что у каждого тенанта
+  // своя комната с собственной фотографией.
+  const heroPhoto = group.rentals[0].photo;
+  const otherPhotos = group.rentals.slice(1).map((r) => r.photo);
+
   return (
     <article className="rounded-card border border-mist bg-canvas overflow-hidden">
-      <div className="grid md:grid-cols-[260px_1fr] gap-0">
-        <div className="aspect-[16/10] md:aspect-auto bg-pebble">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={group.photo} alt={title} className="w-full h-full object-cover" />
+      <div className="grid md:grid-cols-[300px_1fr] gap-0">
+        <div className="grid grid-cols-1 gap-1 bg-pebble">
+          <div className="aspect-[16/10] md:aspect-[4/3]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={heroPhoto} alt={title} className="w-full h-full object-cover" />
+          </div>
+          {otherPhotos.length > 0 ? (
+            <div className="grid grid-cols-2 gap-1">
+              {otherPhotos.slice(0, 4).map((p, i) => (
+                <div key={p + i} className="aspect-[16/10] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p} alt="" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
+
         <div className="p-5">
           <div className="text-[12px] text-mistx mb-1 uppercase tracking-[0.18em]">
             {city}, {country}
@@ -165,7 +184,7 @@ function PropertyGroup({ group }: { group: PropertyGroupT }) {
             </div>
           </dl>
 
-          {/* Список сегментов */}
+          {/* Список сегментов с собственным фото у каждого */}
           <ul className="mt-4 divide-y divide-mist border-t border-mist">
             {group.rentals.map((r) => (
               <SegmentRow key={r.id} rental={r} />
@@ -191,6 +210,10 @@ function SegmentRow({ rental }: { rental: DemoRental }) {
 
   return (
     <li className="py-4 flex flex-wrap items-center gap-3">
+      <div className="h-14 w-14 rounded-card overflow-hidden bg-pebble shrink-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={rental.photo} alt="" className="h-full w-full object-cover" />
+      </div>
       <div className="flex-1 min-w-0">
         <div className="text-body-sm font-bold text-obsidian">
           {rental.segmentLabel ? `${rental.segmentLabel} · ` : ''}

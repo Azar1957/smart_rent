@@ -198,7 +198,7 @@ export const DEMO_RENTALS: DemoRental[] = [
     country: lt('Germany', 'Alemania', 'Германия'),
     address: lt('Linienstraße 44, R1', 'Linienstraße 44, R1', 'Linienstraße 44, R1'),
     photo:
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1600&q=80',
     area: 22,
     rooms: 1,
     monthlyEur: 720,
@@ -226,7 +226,7 @@ export const DEMO_RENTALS: DemoRental[] = [
     country: lt('Germany', 'Alemania', 'Германия'),
     address: lt('Linienstraße 44, R2', 'Linienstraße 44, R2', 'Linienstraße 44, R2'),
     photo:
-      'https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1600&q=80',
     area: 16,
     rooms: 1,
     monthlyEur: 580,
@@ -254,7 +254,7 @@ export const DEMO_RENTALS: DemoRental[] = [
     country: lt('Germany', 'Alemania', 'Германия'),
     address: lt('Linienstraße 44, R3', 'Linienstraße 44, R3', 'Linienstraße 44, R3'),
     photo:
-      'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1600&q=80',
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80',
     area: 12,
     rooms: 1,
     monthlyEur: 460,
