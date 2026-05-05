@@ -93,65 +93,57 @@ function LogoIcon({
   size: number;
   className?: string;
 }) {
+  // Геометрия повторяет референс: широкая крыша-домик с маленьким мансардным
+  // окошком, под ней массивные стилизованные S и R — толстые «почти fill»
+  // обводки, опирающиеся на общую горизонтальную полку (нижний край дома).
   return (
     <svg
-      viewBox="0 0 64 64"
+      viewBox="0 0 200 200"
       width={size}
       height={size}
       role="img"
       aria-label="Smart Rent"
       className={className}
     >
-      {/* Крыша-домик с маленьким окошком сверху */}
-      <path
-        d="M10 28 L32 8 L54 28"
+      <g
         fill="none"
         stroke={stroke}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M28 14 L32 11 L36 14 L36 19 L28 19 Z"
-        fill="none"
-        stroke={stroke}
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-      />
-      {/* Окошко 2x2 в центре крыши — маленькие квадраты, акцентная заливка sienna */}
-      <g transform="translate(29 22)">
-        <rect x="0" y="0" width="2.6" height="2.6" rx="0.4" fill={accent} />
-        <rect x="3.4" y="0" width="2.6" height="2.6" rx="0.4" fill={accent} />
-        <rect x="0" y="3.4" width="2.6" height="2.6" rx="0.4" fill={accent} />
-        <rect x="3.4" y="3.4" width="2.6" height="2.6" rx="0.4" fill={accent} />
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+        strokeMiterlimit="2"
+      >
+        {/* Скаты крыши с лёгким карнизом — две сходящиеся линии */}
+        <path d="M22 92 L100 22 L178 92" strokeWidth="11" />
+        {/* Мансарда — маленькая «башенка» под коньком */}
+        <path d="M88 41 L100 30 L112 41 L112 58 L88 58 Z" strokeWidth="6" />
+
+        {/* Нижняя полка дома — общая опора для букв */}
+        <path d="M22 158 L178 158" strokeWidth="11" />
+
+        {/* Литера S — толстая горизонтальная «зигзаг»-форма как в референсе */}
+        <path
+          d="M86 80
+             L40 80
+             L40 112
+             L86 112
+             L86 144
+             L40 144"
+          strokeWidth="13"
+        />
+
+        {/* Литера R — вертикаль с круглой петлёй и наклонной ножкой */}
+        <path d="M114 144 L114 80 L150 80" strokeWidth="13" />
+        <path d="M150 80 A18 18 0 0 1 150 116 L114 116" strokeWidth="13" />
+        <path d="M132 116 L160 144" strokeWidth="13" />
       </g>
 
-      {/* S — левая половина монограммы */}
-      <path
-        d="M28 32
-           Q14 32 14 38.5
-           Q14 45 21 45
-           L28 45
-           Q28 45 28 51
-           L14 51"
-        fill="none"
-        stroke={stroke}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* R — правая половина монограммы (вертикаль + дуга + ножка) */}
-      <path
-        d="M36 51 L36 32 L44 32
-           Q50 32 50 38
-           Q50 44 44 44 L36 44
-           M44 44 L51 51"
-        fill="none"
-        stroke={stroke}
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      {/* Окошко 2x2 в крыше — единственное цветное пятно (sienna) */}
+      <g transform="translate(92 42)" fill={accent}>
+        <rect x="0" y="0" width="6" height="6" rx="0.6" />
+        <rect x="9" y="0" width="6" height="6" rx="0.6" />
+        <rect x="0" y="9" width="6" height="6" rx="0.6" />
+        <rect x="9" y="9" width="6" height="6" rx="0.6" />
+      </g>
     </svg>
   );
 }
