@@ -1,5 +1,5 @@
 /// Пользователь платформы (арендодатель / арендатор / администратор).
-/// Хранение пароля — bcrypt-подобный хэш через $System.Encryption.SHA*Hash + соль.
+/// Хранение пароля — соль (hex) + SHA-512(пароль || соль) (hex).
 /// Для production рекомендуется заменить на полноценный bcrypt/argon2.
 Class SmartRent.Model.User Extends (%Persistent, %JSON.Adaptor)
 {
@@ -10,8 +10,9 @@ Parameter DEFAULTGLOBAL = "^SR.User";
 /// Уникальный email — основной идентификатор для входа.
 Property Email As %String(MAXLEN = 255) [ Required ];
 
-/// SHA-512 пароля + соль, хранятся вместе.
+/// SHA-512(password+salt), сохраняется как hex-строка (128 символов).
 Property PasswordHash As %String(MAXLEN = 256) [ Internal ];
+/// Случайная соль, сохраняется как hex-строка (32 символа = 16 байт).
 Property PasswordSalt As %String(MAXLEN = 64)  [ Internal ];
 
 /// Роль: admin | landlord | tenant.
@@ -39,18 +40,25 @@ Property UpdatedAt As %TimeStamp [ InitialExpression = {$ZDATETIME($HOROLOG, 3, 
 Index EmailIdx On Email [ Unique ];
 Index RoleIdx  On Role;
 
-/// Установить пароль (генерирует соль и хэш).
+/// Установить пароль (генерирует соль и хэш SHA-512). Соль и хэш хранятся в hex —
+/// %String может быть Unicode-широким, и сырые бинарные байты из GenCryptRand /
+/// SHAHash при сохранении ломаются (<WIDE CHAR> / искажение байтов). Hex-форма
+/// безопасна для всех настроек локали/кодировки IRIS.
 Method SetPassword(pPlain As %String) As %Status
 {
-    set ..PasswordSalt = $system.Encryption.GenCryptRand(16, 1)
-    set ..PasswordHash = $system.Encryption.SHA512Hash(pPlain _ ..PasswordSalt)
+    set tSaltBin = $system.Encryption.GenCryptRand(16, 1)
+    set ..PasswordSalt = $system.Encryption.ToHex(tSaltBin)
+    set ..PasswordHash = $system.Encryption.ToHex($system.Encryption.SHAHash(512, pPlain _ tSaltBin))
     quit $$$OK
 }
 
 /// Проверить пароль.
 Method CheckPassword(pPlain As %String) As %Boolean
 {
-    quit (..PasswordHash = $system.Encryption.SHA512Hash(pPlain _ ..PasswordSalt))
+    if ..PasswordSalt = "" quit 0
+    set tSaltBin = $system.Encryption.FromHex(..PasswordSalt)
+    set tHash    = $system.Encryption.ToHex($system.Encryption.SHAHash(512, pPlain _ tSaltBin))
+    quit (..PasswordHash = tHash)
 }
 
 /// Выгрузить пользователя без чувствительных полей.
