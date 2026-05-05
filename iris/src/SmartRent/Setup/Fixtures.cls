@@ -6,6 +6,7 @@ ClassMethod Load() As %Status
 {
     if ##class(SmartRent.Model.User).EmailIdxExists("admin@smartrent.local") {
         write "[smartrent] fixtures already loaded", !
+        do ..RepairPasswords()
         quit $$$OK
     }
     write "[smartrent] loading fixtures…", !
@@ -61,6 +62,38 @@ ClassMethod Load() As %Status
     do u.%Save()
 
     write !, "Fixtures loaded: admin/landlord/tenant + 1 property, 3 segments, 1 booking, 1 utility bill", !
+    quit $$$OK
+}
+
+/// Чинит / создаёт демо-пользователей. Срабатывает, если фикстуры уже были
+/// загружены, но SetPassword падал из-за бага с $system.Encryption.SHA512Hash:
+/// admin создавался с пустым PasswordHash, а landlord/tenant — не создавались
+/// вовсе (mkUser падал на втором юзере). Без этого /auth/login всегда 401.
+ClassMethod RepairPasswords() As %Status
+{
+    set tFixed = 0, tCreated = 0
+    set tCreds("admin@smartrent.local")    = $listbuild("Admin12345!", "admin",    "Admin", "Smart")
+    set tCreds("landlord@smartrent.local") = $listbuild("Land12345!",  "landlord", "Иван",  "Петров")
+    set tCreds("tenant@smartrent.local")   = $listbuild("Tenant12345!","tenant",   "Анна",  "Иванова")
+    set k = "" for { set k = $order(tCreds(k))  quit:k=""
+        set tList = tCreds(k)
+        set tPw = $listget(tList, 1), tRole = $listget(tList, 2)
+        set tFn = $listget(tList, 3), tLn   = $listget(tList, 4)
+        set tId = ##class(SmartRent.Model.User).EmailIdxOpen(k)
+        if '$isobject(tId) {
+            set tId = ..mkUser(k, tPw, tRole, tFn, tLn)
+            set tCreated = tCreated + 1
+            write "[smartrent] created missing user ", k, !
+        } elseif tId.PasswordHash = "" {
+            do tId.SetPassword(tPw)
+            do tId.%Save()
+            set tFixed = tFixed + 1
+            write "[smartrent] repaired password for ", k, !
+        }
+    }
+    if (tFixed + tCreated) > 0 {
+        write "[smartrent] repair: created=", tCreated, " fixed=", tFixed, !
+    }
     quit $$$OK
 }
 
