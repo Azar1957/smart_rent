@@ -102,12 +102,19 @@ export interface Dictionary {
     actions: string;
   };
   home: {
+    heroEyebrow: string;
+    heroTitle: string;
+    heroSub: string;
+    heroCtaPrimary: string;
+    heroCtaSecondary: string;
+    featuredEyebrow: string;
     featuredTitle: string;
     featuredSub: string;
     popularCities: string;
     whySmartRent: string;
-    heroTitle: string;
-    heroSub: string;
+    whyEyebrow: string;
+    whyTitle: string;
+    whySub: string;
     ctaStart: string;
     ctaDemo: string;
     f1Title: string;
@@ -116,6 +123,8 @@ export interface Dictionary {
     f2Body: string;
     f3Title: string;
     f3Body: string;
+    f4Title: string;
+    f4Body: string;
   };
   dash: {
     incomeByMonth: string;
@@ -220,20 +229,35 @@ export const dictionaries: Record<Locale, Dictionary> = {
       actions: 'Actions',
     },
     home: {
-      featuredTitle: 'Featured stays',
-      featuredSub: 'Long-term rentals across Europe — verified hosts, transparent pricing.',
+      heroEyebrow: 'Long-term rentals',
+      heroTitle: 'Live in the world’s best cities — by the month.',
+      heroSub:
+        'Verified apartments, transparent pricing in your currency and a single dashboard for the entire lease.',
+      heroCtaPrimary: 'Browse stays',
+      heroCtaSecondary: 'Become a host',
+      featuredEyebrow: 'Featured',
+      featuredTitle: 'Curated long-term homes',
+      featuredSub: 'Hand-picked apartments and rooms across Europe. Click any card to open the listing.',
       popularCities: 'Popular cities',
       whySmartRent: 'Why smart rent',
-      heroTitle: 'Long-term room rental platform',
-      heroSub: 'Manage properties, leases, utilities and finances from one dashboard.',
+      whyEyebrow: 'Why smart rent',
+      whyTitle: 'A long-term rental platform that respects your time and money.',
+      whySub:
+        'Built for residents who stay for months — and for the hosts who serve them.',
       ctaStart: 'Get started',
       ctaDemo: 'Open demo',
-      f1Title: 'Properties & segments',
-      f1Body: 'Rent each apartment by individual rooms with their own prices and rules.',
-      f2Title: 'Contracts & e-signatures',
-      f2Body: 'Auto-generate lease contracts and capture digital signatures of both parties.',
-      f3Title: 'Finance & utilities',
-      f3Body: 'Online payments, deposits, automatic utility splitting and late penalties.',
+      f1Title: 'Verified hosts',
+      f1Body:
+        'Each landlord is identity-verified before publishing. Agencies are clearly marked.',
+      f2Title: 'Properties & segments',
+      f2Body:
+        'Rent each apartment whole or by individual rooms with their own prices and rules.',
+      f3Title: 'Multi-currency, no surprises',
+      f3Body:
+        'Prices stored in EUR, displayed in your currency. Utilities and deposits shown upfront.',
+      f4Title: 'Contracts in 3 languages',
+      f4Body:
+        'Auto-generated lease contracts and digital signatures, in English, Spanish or Russian.',
     },
     dash: {
       incomeByMonth: 'Income by month',
@@ -336,20 +360,35 @@ export const dictionaries: Record<Locale, Dictionary> = {
       actions: 'Acciones',
     },
     home: {
-      featuredTitle: 'Alojamientos destacados',
-      featuredSub: 'Alquileres a largo plazo en Europa — anfitriones verificados, precios transparentes.',
+      heroEyebrow: 'Alquileres a largo plazo',
+      heroTitle: 'Vive en las mejores ciudades del mundo, mes a mes.',
+      heroSub:
+        'Pisos verificados, precios transparentes en tu moneda y un solo panel para todo el contrato.',
+      heroCtaPrimary: 'Ver alojamientos',
+      heroCtaSecondary: 'Anuncia tu alojamiento',
+      featuredEyebrow: 'Destacados',
+      featuredTitle: 'Hogares de larga estancia seleccionados',
+      featuredSub:
+        'Apartamentos y habitaciones por toda Europa. Pulsa cualquier tarjeta para ver el anuncio.',
       popularCities: 'Ciudades populares',
       whySmartRent: 'Por qué smart rent',
-      heroTitle: 'Plataforma de alquiler de habitaciones a largo plazo',
-      heroSub: 'Gestiona propiedades, contratos, servicios y finanzas en un solo panel.',
+      whyEyebrow: 'Por qué smart rent',
+      whyTitle: 'Una plataforma de alquiler que respeta tu tiempo y tu dinero.',
+      whySub: 'Pensada para quienes se quedan meses — y para los anfitriones que los alojan.',
       ctaStart: 'Empezar',
       ctaDemo: 'Ver demo',
-      f1Title: 'Propiedades y segmentos',
-      f1Body: 'Alquila cada apartamento por habitaciones con precios y reglas propias.',
-      f2Title: 'Contratos y firmas',
-      f2Body: 'Genera contratos automáticamente y captura firmas electrónicas de ambas partes.',
-      f3Title: 'Finanzas y servicios',
-      f3Body: 'Pagos en línea, depósitos, división automática de servicios y penalizaciones por atraso.',
+      f1Title: 'Anfitriones verificados',
+      f1Body:
+        'Cada propietario se verifica antes de publicar. Las agencias se marcan claramente.',
+      f2Title: 'Propiedades y segmentos',
+      f2Body:
+        'Alquila el piso entero o por habitaciones, con precios y reglas propios.',
+      f3Title: 'Multimoneda, sin sorpresas',
+      f3Body:
+        'Precios en EUR, mostrados en tu moneda. Servicios y depósitos siempre por adelantado.',
+      f4Title: 'Contratos en 3 idiomas',
+      f4Body:
+        'Contratos generados automáticamente y firmas digitales en inglés, español o ruso.',
     },
     dash: {
       incomeByMonth: 'Ingresos por mes',
@@ -452,20 +491,36 @@ export const dictionaries: Record<Locale, Dictionary> = {
       actions: 'Действия',
     },
     home: {
-      featuredTitle: 'Подборка жилья',
-      featuredSub: 'Долгосрочная аренда по Европе — проверенные арендодатели, прозрачные цены.',
+      heroEyebrow: 'Долгосрочная аренда',
+      heroTitle: 'Жить в лучших городах мира — помесячно.',
+      heroSub:
+        'Проверенные квартиры, прозрачные цены в вашей валюте и единый кабинет для всего срока аренды.',
+      heroCtaPrimary: 'Смотреть жильё',
+      heroCtaSecondary: 'Сдать жильё',
+      featuredEyebrow: 'Подборка',
+      featuredTitle: 'Жильё для долгой жизни',
+      featuredSub:
+        'Отобранные квартиры и комнаты по всей Европе. Нажмите на карточку, чтобы открыть объявление.',
       popularCities: 'Популярные города',
       whySmartRent: 'Почему smart rent',
-      heroTitle: 'Платформа долгосрочной аренды комнат',
-      heroSub: 'Управляйте объектами, договорами, коммунальными платежами и финансами в одном окне.',
+      whyEyebrow: 'Почему smart rent',
+      whyTitle: 'Платформа долгосрочной аренды, которая уважает ваше время и деньги.',
+      whySub:
+        'Сделано для тех, кто живёт месяцами — и для арендодателей, которые их принимают.',
       ctaStart: 'Начать бесплатно',
       ctaDemo: 'Войти в демо',
-      f1Title: 'Объекты и сегменты',
-      f1Body: 'Сдавайте квартиру по комнатам с уникальными ценами и правилами для каждой.',
-      f2Title: 'Договоры и подписи',
-      f2Body: 'Автогенерация шаблонных договоров и электронные подписи арендатора и арендодателя.',
-      f3Title: 'Финансы и коммуналка',
-      f3Body: 'Онлайн-оплата, депозиты, автоматическое деление коммунальных счетов и пени за просрочку.',
+      f1Title: 'Проверенные арендодатели',
+      f1Body:
+        'Каждый собственник проходит верификацию до публикации. Агентства помечены отдельно.',
+      f2Title: 'Объекты и сегменты',
+      f2Body:
+        'Сдавайте квартиру целиком или по комнатам — со своими ценами и правилами.',
+      f3Title: 'Мультивалютность без сюрпризов',
+      f3Body:
+        'Цены хранятся в EUR, показываются в вашей валюте. Депозит и коммуналка — заранее.',
+      f4Title: 'Договоры на 3 языках',
+      f4Body:
+        'Автогенерация договоров и электронные подписи на английском, испанском или русском.',
     },
     dash: {
       incomeByMonth: 'Доход по месяцам',

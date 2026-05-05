@@ -3,16 +3,21 @@
 @tailwind utilities;
 
 :root {
-  --color-rausch-coral: #ff385c;
-  --color-rausch-deep: #e00b41;
-  --color-carbon: #222222;
-  --color-slate: #6a6a6a;
-  --color-silver: #c1c1c1;
-  --color-stone: #b0b0b0;
-  --color-pebble: #dddddd;
+  /* Hyer Aviation tokens */
+  --color-obsidian: #000d10;
+  --color-canvas-white: #ffffff;
+  --color-slate-mist: #8e8e95;
+  --color-desert-sienna: #bc7155;
+  --color-desert-sienna-deep: #a55d44;
+
+  /* Surface aliases used by older Airbnb-styled cards in the listing grid. */
+  --color-rausch-coral: var(--color-desert-sienna);
+  --color-rausch-deep: var(--color-desert-sienna-deep);
+  --color-carbon: var(--color-obsidian);
+  --color-fog: #f5f1ee;
+  --color-cloud: var(--color-canvas-white);
   --color-mist: #ebebeb;
-  --color-fog: #f7f7f7;
-  --color-cloud: #ffffff;
+  --color-pebble: #dddddd;
 
   --shadow-subtle: rgba(0, 0, 0, 0.02) 0px 0px 0px 1px,
     rgba(0, 0, 0, 0.04) 0px 2px 6px 0px,
@@ -23,52 +28,60 @@
 
 html,
 body {
-  background: var(--color-fog);
-  color: var(--color-carbon);
+  background: var(--color-canvas-white);
+  color: var(--color-obsidian);
   min-height: 100%;
-  font-feature-settings: 'salt';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 @layer components {
+  /* Hyer-style pill buttons. */
   .btn {
-    @apply inline-flex items-center justify-center rounded-button px-4 py-2 text-body font-semibold transition
-           focus:outline-none focus:ring-2 focus:ring-rausch focus:ring-offset-2
+    @apply inline-flex items-center justify-center rounded-full px-[22px] pt-[15px] pb-[16px]
+           text-body-sm font-bold transition focus:outline-none
+           focus-visible:ring-2 focus-visible:ring-sienna focus-visible:ring-offset-2
            disabled:opacity-50 disabled:pointer-events-none;
   }
   .btn-primary {
-    @apply btn bg-rausch text-white hover:bg-rausch-deep;
+    @apply btn bg-sienna text-canvas hover:bg-sienna-deep;
+  }
+  .btn-obsidian {
+    @apply btn bg-obsidian text-canvas hover:bg-obsidian/90;
   }
   .btn-ghost {
-    @apply btn bg-transparent text-carbon hover:bg-fog;
+    @apply btn bg-transparent text-canvas border border-canvas hover:bg-canvas/10;
   }
   .btn-outline {
-    @apply btn bg-transparent text-carbon border border-carbon hover:bg-fog;
+    @apply btn bg-transparent text-obsidian border border-obsidian hover:bg-obsidian hover:text-canvas;
   }
 
   .card-surface,
   .card {
-    @apply rounded-card bg-cloud border border-mist p-5;
+    @apply rounded-panel bg-canvas border border-obsidian/10 p-[22px];
   }
 
   .input {
-    @apply w-full rounded-input border border-pebble bg-cloud px-3 py-2
-           text-body text-carbon placeholder:text-slatex
-           focus:outline-none focus:border-carbon focus:ring-1 focus:ring-carbon;
+    @apply w-full rounded-full border border-obsidian/20 bg-canvas px-[22px] py-[14px]
+           text-body-sm text-obsidian placeholder:text-mistx
+           focus:outline-none focus:border-obsidian focus:ring-1 focus:ring-obsidian;
   }
   .label {
-    @apply block text-caption font-semibold text-carbon mb-1;
+    @apply block text-body-sm font-bold text-obsidian mb-1;
   }
   .badge {
-    @apply inline-flex items-center rounded-badge px-2 py-1 text-caption font-semibold;
+    @apply inline-flex items-center rounded-full px-3 py-1 text-body-sm font-bold;
   }
 
   .nav-link {
-    @apply text-body font-semibold text-carbon px-2 py-2 hover:bg-fog rounded-button transition;
+    @apply text-body-sm text-obsidian px-3 py-[13px] hover:text-sienna transition;
   }
   .nav-link-active {
-    @apply text-body font-semibold text-carbon px-2 py-2 border-b-2 border-carbon rounded-none;
+    @apply text-body-sm font-bold text-obsidian px-3 py-[13px] border-b border-obsidian rounded-none;
+  }
+
+  .nav-link-on-dark {
+    @apply text-body-sm text-canvas px-3 py-[13px] hover:text-sienna transition;
   }
 }
 
@@ -78,4 +91,12 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Tracking helpers, чтобы display-заголовки реально выглядели как Hyer. */
+.tracking-display {
+  letter-spacing: -3.74px;
+}
+.tracking-heading {
+  letter-spacing: -0.52px;
 }
