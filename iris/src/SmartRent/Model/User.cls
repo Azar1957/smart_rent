@@ -43,14 +43,14 @@ Index RoleIdx  On Role;
 Method SetPassword(pPlain As %String) As %Status
 {
     set ..PasswordSalt = $system.Encryption.GenCryptRand(16, 1)
-    set ..PasswordHash = $system.Encryption.SHA512Hash(pPlain _ ..PasswordSalt)
+    set ..PasswordHash = $system.Encryption.SHAHash(512, pPlain _ ..PasswordSalt)
     quit $$$OK
 }
 
 /// Проверить пароль.
 Method CheckPassword(pPlain As %String) As %Boolean
 {
-    quit (..PasswordHash = $system.Encryption.SHA512Hash(pPlain _ ..PasswordSalt))
+    quit (..PasswordHash = $system.Encryption.SHAHash(512, pPlain _ ..PasswordSalt))
 }
 
 /// Выгрузить пользователя без чувствительных полей.
