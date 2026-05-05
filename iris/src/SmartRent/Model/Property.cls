@@ -15,7 +15,7 @@ Property Lat     As %Double;
 Property Lng     As %Double;
 
 /// Тип жилья.
-Property PropertyType As %String(VALUELIST = ",apartment,house,studio", DEFAULT = "apartment");
+Property PropertyType As %String(VALUELIST = ",apartment,house,studio") [ InitialExpression = "apartment" ];
 
 Property TotalRooms  As %Integer;
 Property TotalArea   As %Double;

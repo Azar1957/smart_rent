@@ -1,28 +1,21 @@
 #!/bin/bash
 # Принудительная переустановка Smart Rent внутри уже работающего контейнера.
-# Не пересобирает образ — нужно только если предыдущий setup частично упал.
+# Не пересобирает образ — просто прогоняет тот же setup, что и при старте.
 set -u
 
 echo "=========================================="
 echo "  Smart Rent — принудительная переустановка"
 echo "=========================================="
 
-iris session iris -U%SYS <<'OS'
-write !,"[reinstall] removing old web app if exists...",!
-do ##class(Security.Applications).Delete("/api/smartrent/v1")
-write !,"[reinstall] running Installer.RunAll()...",!
-do ##class(SmartRent.Setup.Installer).RunAll()
-halt
-OS
+# Если /durable принадлежит root (volume только что смонтирован) — chown.
+if [ ! -w /durable ]; then
+    echo "[reinstall] /durable не writable, пробую sudo chown..."
+    sudo -n chown -R irisowner:irisowner /durable 2>/dev/null || \
+        echo "[reinstall] sudo не сработал; попросите хост: docker exec -u root smartrent-iris chown -R irisowner:irisowner /durable"
+fi
 
-echo ""
-echo "[reinstall] forcing class compile in SMARTRENT..."
-iris session iris -U"SMARTRENT" <<'OS'
-do $system.OBJ.LoadDir("/opt/smartrent/src","ck",,1)
-do $system.OBJ.CompilePackage("SmartRent","ck")
-write !,"[reinstall] compile finished",!
-halt
-OS
+# Запускаем тот же init-скрипт.
+bash /docker-entrypoint-initdb.d/01-smartrent-setup.sh
 
 echo ""
 echo "[reinstall] verifying /health (5 retries)..."

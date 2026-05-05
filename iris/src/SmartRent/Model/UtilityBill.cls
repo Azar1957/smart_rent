@@ -11,10 +11,10 @@ Property Period   As %String(MAXLEN = 7) [ Required ]; // YYYY-MM
 Property Kind As %String(VALUELIST = ",electricity,water,gas,internet,other") [ Required ];
 
 Property TotalAmount As %Numeric(SCALE = 2) [ Required ];
-Property Currency    As %String(MAXLEN = 3, DEFAULT = "USD");
+Property Currency    As %String(MAXLEN = 3) [ InitialExpression = "USD" ];
 
 /// Способ деления: equal (поровну) | byArea (по площади) | byUsage (произвольно).
-Property Split As %String(VALUELIST = ",equal,byArea,byUsage", DEFAULT = "equal");
+Property Split As %String(VALUELIST = ",equal,byArea,byUsage") [ InitialExpression = "equal" ];
 
 Property ScanFile As %Stream.GlobalBinary;
 Property Note     As %String(MAXLEN = 1000);

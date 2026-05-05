@@ -14,10 +14,10 @@ Property EndDate   As %Date [ Required ];
 
 Property MonthlyPrice  As %Numeric(SCALE = 2) [ Required ];
 Property DepositAmount As %Numeric(SCALE = 2);
-Property Currency      As %String(MAXLEN = 3, DEFAULT = "USD");
+Property Currency      As %String(MAXLEN = 3) [ InitialExpression = "USD" ];
 
 /// active | terminated | finished
-Property Status As %String(VALUELIST = ",draft,active,terminated,finished", DEFAULT = "draft");
+Property Status As %String(VALUELIST = ",draft,active,terminated,finished") [ InitialExpression = "draft" ];
 
 /// Сгенерированный текст договора (HTML/MD).
 Property ContractText As %Stream.GlobalCharacter;

@@ -123,6 +123,13 @@ jobs:
           echo "===> docker ps"
           \$COMPOSE ps
 
+          # Если IRIS уже стартовал, но не успел инициализироваться (или volume
+          # был создан с неправильными правами), запускаем reinstall внутри
+          # контейнера. Это идемпотентно. На первом запуске обычно лишнее, но
+          # для гарантии — пусть будет.
+          echo "===> ensuring /durable ownership"
+          docker exec -u root smartrent-iris chown -R irisowner:irisowner /durable 2>/dev/null || true
+
           echo "===> waiting for IRIS health (up to 4 min)"
           for i in \$(seq 1 48); do
               code=\$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:52773/api/smartrent/v1/health || true)
@@ -160,12 +167,18 @@ jobs:
               URL="http://$SSH_HOST/api/iris/health"
           fi
           echo "Smoke test: $URL"
-          for i in 1 2 3 4 5; do
+          OK=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
               if curl -fsSL "$URL" > /tmp/health.json; then
-                  echo "  OK"
+                  echo "  OK on attempt $i"
                   cat /tmp/health.json
+                  OK=1
                   break
               fi
-              echo "  attempt $i failed, retrying in 10s…"
-              sleep 10
+              echo "  attempt $i failed, retrying in 15s…"
+              sleep 15
           done
+          if [ "$OK" -ne 1 ]; then
+              echo "::error::Smoke test failed: $URL не отвечает 200 после 10 попыток"
+              exit 1
+          fi
