@@ -1,64 +1,83 @@
 'use client';
 
-import useSWR from 'swr';
-import { api } from '@/lib/api';
+import Link from 'next/link';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Receipt, Zap, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
 
-export default function PaymentsPage() {
+export default function PaymentsHubPage() {
   const { t } = useT();
-  const { token, user } = useAuth();
-  const { data, mutate, isLoading } = useSWR(['/payments', token], ([p, tk]) => api(p, { token: tk }));
-  const items: any[] = (data as any)?.items || [];
+  const router = useRouter();
+  const { token } = useAuth();
 
-  async function pay(id: string) {
-    await api('/payments/' + id + '/pay', { method: 'POST', token, body: JSON.stringify({ provider: 'stripe-mock' }) });
-    void mutate();
-  }
+  useEffect(() => {
+    if (!token) router.replace('/login');
+  }, [token, router]);
+
+  if (!token) return null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
-      <h1 className="text-2xl font-bold mb-6">{t.nav.payments}</h1>
-      {isLoading ? (
-        <div className="text-slate-500">{t.common.loading}</div>
-      ) : items.length === 0 ? (
-        <div className="text-slate-500">{t.common.empty}</div>
-      ) : (
-        <div className="overflow-x-auto card p-0">
-          <table className="w-full text-sm">
-            <thead className="text-left text-xs uppercase text-slate-500 bg-slate-50 dark:bg-slate-800">
-              <tr>
-                <th className="px-4 py-2">#</th>
-                <th className="px-4 py-2">Тип</th>
-                <th className="px-4 py-2">Сумма</th>
-                <th className="px-4 py-2">Срок</th>
-                <th className="px-4 py-2">Статус</th>
-                {user?.role === 'tenant' && <th className="px-4 py-2">{t.common.actions}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((p) => (
-                <tr key={p.id} className="border-t border-slate-200 dark:border-slate-800">
-                  <td className="px-4 py-2 font-mono text-xs">{p.id}</td>
-                  <td className="px-4 py-2">{p.kind}</td>
-                  <td className="px-4 py-2">{p.amount} {p.currency}</td>
-                  <td className="px-4 py-2">{p.dueDate || '—'}</td>
-                  <td className="px-4 py-2">
-                    <span className={`badge ${p.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : p.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>{p.status}</span>
-                  </td>
-                  {user?.role === 'tenant' && (
-                    <td className="px-4 py-2">
-                      {p.status !== 'paid' && (
-                        <button className="btn-primary !py-1" onClick={() => pay(p.id)}>Оплатить</button>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className="bg-canvas">
+      <div className="mx-auto max-w-page px-6 py-10">
+        <div className="text-body-sm text-mistx mb-2">{t.payments.eyebrow}</div>
+        <h1 className="text-heading-sm md:text-heading font-bold text-obsidian tracking-heading">
+          {t.payments.title}
+        </h1>
+        <p className="text-body-sm text-mistx mt-2 max-w-xl">{t.payments.sub}</p>
+
+        <div className="grid gap-4 sm:grid-cols-2 mt-8">
+          <HubCard
+            href="/payments/rent"
+            icon={<Receipt className="h-5 w-5" />}
+            title={t.payments.rentTabTitle}
+            sub={t.payments.rentTabSub}
+          />
+          <HubCard
+            href="/payments/utilities"
+            icon={<Zap className="h-5 w-5" />}
+            title={t.payments.utilTabTitle}
+            sub={t.payments.utilTabSub}
+          />
         </div>
-      )}
+
+        <div className="mt-8">
+          <Link href="/dashboard" className="nav-link">
+            ← {t.nav.dashboard}
+          </Link>
+        </div>
+      </div>
     </div>
+  );
+}
+
+function HubCard({
+  href,
+  icon,
+  title,
+  sub,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-card border border-mist p-6 bg-canvas hover:bg-fog transition flex items-start gap-4"
+    >
+      <span className="inline-flex h-10 w-10 rounded-full bg-fog text-obsidian items-center justify-center shrink-0">
+        {icon}
+      </span>
+      <div className="flex-1">
+        <div className="text-subheading font-bold text-obsidian">{title}</div>
+        <div className="text-body-sm text-mistx mt-1">{sub}</div>
+        <div className="mt-3 inline-flex items-center gap-1 text-body-sm font-bold text-obsidian">
+          <ArrowRight className="h-4 w-4" />
+        </div>
+      </div>
+    </Link>
   );
 }
