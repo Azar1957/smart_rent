@@ -117,6 +117,86 @@ export interface Dictionary {
     empty: string;
     actions: string;
   };
+  roles: { admin: string; landlord: string; tenant: string };
+  paymentStatus: { paid: string; pending: string; overdue: string };
+  paymentKind: { rent: string; deposit: string; utility: string; penalty: string; refund: string };
+  utilityKind: { electricity: string; water: string; internet: string };
+  dashboard: {
+    eyebrow: string;
+    hello: string;
+    browseStays: string;
+    manageProperties: string;
+    payRent: string;
+    payRentTitle: string;
+    payRentSub: string;
+    payUtilities: string;
+    payUtilitiesTitle: string;
+    payUtilitiesSub: string;
+    viewHistory: string;
+    activeRentals: string;
+    totalMonthly: string;
+    nextPayment: string;
+    noUpcoming: string;
+    myRentals: string;
+    myRentalsSub: string;
+    noRentals: string;
+    payments: string;
+    recommendationsTitle: string;
+    recommendationsSub: string;
+    allListings: string;
+    rentedSegments: string;
+    monthlyIncome: string;
+    collectedRent: string;
+    collectedUtilities: string;
+    allTime: string;
+    myRentedProperties: string;
+    myRentedPropertiesSub: string;
+    allProperties: string;
+    noProperties: string;
+    tenants: string;
+    tenantsList: string;
+    monthlyTotal: string;
+    term: string;
+    rentHistory: string;
+    utilityHistory: string;
+    lastRent: string;
+    nextRent: string;
+    lastUtility: string;
+    totalPaid: string;
+    totalDue: string;
+  };
+  payments: {
+    eyebrow: string;
+    title: string;
+    sub: string;
+    rentTabTitle: string;
+    rentTabSub: string;
+    utilTabTitle: string;
+    utilTabSub: string;
+    rentTitle: string;
+    rentSubTenant: string;
+    rentSubLandlord: string;
+    utilTitle: string;
+    utilSubTenant: string;
+    utilSubLandlord: string;
+    month: string;
+    description: string;
+    rental: string;
+    amount: string;
+    due: string;
+    status: string;
+    paidAt: string;
+    pay: string;
+    payTitle: string;
+    payDoneTitle: string;
+    payDoneSub: string;
+    cardNumber: string;
+    cardExpiry: string;
+    cardCvc: string;
+    payNow: string;
+    payDisclaimer: string;
+    total: string;
+  };
   home: {
     heroEyebrow: string;
     heroTitle: string;
@@ -309,6 +389,92 @@ export const dictionaries: Record<Locale, Dictionary> = {
       f4Body:
         'Auto-generated lease contracts and digital signatures, in English, Spanish or Russian.',
     },
+    roles: { admin: 'Admin', landlord: 'Landlord', tenant: 'Tenant' },
+    paymentStatus: { paid: 'Paid', pending: 'Pending', overdue: 'Overdue' },
+    paymentKind: {
+      rent: 'Rent',
+      deposit: 'Deposit',
+      utility: 'Utility',
+      penalty: 'Late fee',
+      refund: 'Refund',
+    },
+    utilityKind: { electricity: 'Electricity', water: 'Water', internet: 'Internet' },
+    dashboard: {
+      eyebrow: 'Personal area',
+      hello: 'Welcome back',
+      browseStays: 'Browse stays',
+      manageProperties: 'Manage properties',
+      payRent: 'Pay rent',
+      payRentTitle: 'Rent payments',
+      payRentSub: 'See history and pay your monthly rent online.',
+      payUtilities: 'Pay utilities',
+      payUtilitiesTitle: 'Utility payments',
+      payUtilitiesSub: 'Electricity, water and internet bills.',
+      viewHistory: 'View history',
+      activeRentals: 'Active rentals',
+      totalMonthly: 'Total monthly',
+      nextPayment: 'Next payment',
+      noUpcoming: 'Nothing due',
+      myRentals: 'My rentals',
+      myRentalsSub: 'Apartments and rooms you currently rent. Click any card to see the listing.',
+      noRentals: 'You don’t have any active rentals yet.',
+      payments: 'Payments',
+      recommendationsTitle: 'You may also like',
+      recommendationsSub: 'Hand-picked long-term homes from our catalog.',
+      allListings: 'All listings',
+      rentedSegments: 'Rented segments',
+      monthlyIncome: 'Monthly income',
+      collectedRent: 'Collected rent',
+      collectedUtilities: 'Collected utilities',
+      allTime: 'all time',
+      myRentedProperties: 'My rented properties',
+      myRentedPropertiesSub: 'Properties currently leased out, grouped by address.',
+      allProperties: 'All properties',
+      noProperties: 'No properties listed yet.',
+      tenants: 'Tenants',
+      tenantsList: 'Tenants',
+      monthlyTotal: 'Monthly total',
+      term: 'Term',
+      rentHistory: 'Rent history',
+      utilityHistory: 'Utility history',
+      lastRent: 'Last rent',
+      nextRent: 'Next rent',
+      lastUtility: 'Last utility',
+      totalPaid: 'Total paid',
+      totalDue: 'Total due',
+    },
+    payments: {
+      eyebrow: 'Payments',
+      title: 'Payments hub',
+      sub: 'Choose what you want to pay or review.',
+      rentTabTitle: 'Rent',
+      rentTabSub: 'Pay your monthly rent and review past invoices.',
+      utilTabTitle: 'Utilities',
+      utilTabSub: 'Electricity, water, internet — split per active tenant.',
+      rentTitle: 'Rent payments',
+      rentSubTenant: 'Pay your monthly rent and review past invoices, all in your selected currency.',
+      rentSubLandlord: 'Track rent payments across all your properties and tenants.',
+      utilTitle: 'Utility payments',
+      utilSubTenant: 'Electricity, water and internet — split between active tenants of the property.',
+      utilSubLandlord: 'See utility splits across all your properties.',
+      month: 'Month',
+      description: 'Description',
+      rental: 'Rental',
+      amount: 'Amount',
+      due: 'Due',
+      status: 'Status',
+      paidAt: 'Paid at',
+      pay: 'Pay',
+      payTitle: 'Confirm payment',
+      payDoneTitle: 'Payment received',
+      payDoneSub: 'We received your payment of',
+      cardNumber: 'Card number',
+      cardExpiry: 'Expiry',
+      cardCvc: 'CVC',
+      payNow: 'Pay now',
+      payDisclaimer: 'Demo payment — no card is charged. In production this is a Stripe redirect.',
+      total: 'Total',
+    },
     dash: {
       incomeByMonth: 'Income by month',
       segmentsByStatus: 'Segments by status',
@@ -473,6 +639,92 @@ export const dictionaries: Record<Locale, Dictionary> = {
       f4Title: 'Contratos en 3 idiomas',
       f4Body:
         'Contratos generados automáticamente y firmas digitales en inglés, español o ruso.',
+    },
+    roles: { admin: 'Admin', landlord: 'Propietario', tenant: 'Inquilino' },
+    paymentStatus: { paid: 'Pagado', pending: 'Pendiente', overdue: 'Vencido' },
+    paymentKind: {
+      rent: 'Alquiler',
+      deposit: 'Depósito',
+      utility: 'Servicios',
+      penalty: 'Recargo',
+      refund: 'Reembolso',
+    },
+    utilityKind: { electricity: 'Electricidad', water: 'Agua', internet: 'Internet' },
+    dashboard: {
+      eyebrow: 'Área personal',
+      hello: 'Bienvenido de nuevo',
+      browseStays: 'Ver alojamientos',
+      manageProperties: 'Gestionar propiedades',
+      payRent: 'Pagar alquiler',
+      payRentTitle: 'Pagos de alquiler',
+      payRentSub: 'Consulta el historial y paga el alquiler en línea.',
+      payUtilities: 'Pagar servicios',
+      payUtilitiesTitle: 'Pagos de servicios',
+      payUtilitiesSub: 'Electricidad, agua e internet.',
+      viewHistory: 'Ver historial',
+      activeRentals: 'Alquileres activos',
+      totalMonthly: 'Total mensual',
+      nextPayment: 'Próximo pago',
+      noUpcoming: 'Sin pagos pendientes',
+      myRentals: 'Mis alquileres',
+      myRentalsSub: 'Apartamentos y habitaciones que tienes alquilados. Pulsa una tarjeta para ver el anuncio.',
+      noRentals: 'Aún no tienes alquileres activos.',
+      payments: 'Pagos',
+      recommendationsTitle: 'Te puede interesar',
+      recommendationsSub: 'Hogares de larga estancia seleccionados.',
+      allListings: 'Todos los anuncios',
+      rentedSegments: 'Unidades alquiladas',
+      monthlyIncome: 'Ingresos mensuales',
+      collectedRent: 'Alquiler cobrado',
+      collectedUtilities: 'Servicios cobrados',
+      allTime: 'total',
+      myRentedProperties: 'Mis propiedades alquiladas',
+      myRentedPropertiesSub: 'Propiedades actualmente alquiladas, agrupadas por dirección.',
+      allProperties: 'Todas las propiedades',
+      noProperties: 'Aún no hay propiedades publicadas.',
+      tenants: 'Inquilinos',
+      tenantsList: 'Inquilinos',
+      monthlyTotal: 'Total mensual',
+      term: 'Plazo',
+      rentHistory: 'Historial de alquiler',
+      utilityHistory: 'Historial de servicios',
+      lastRent: 'Último alquiler',
+      nextRent: 'Próximo alquiler',
+      lastUtility: 'Últimos servicios',
+      totalPaid: 'Total pagado',
+      totalDue: 'Total pendiente',
+    },
+    payments: {
+      eyebrow: 'Pagos',
+      title: 'Centro de pagos',
+      sub: 'Elige qué quieres pagar o revisar.',
+      rentTabTitle: 'Alquiler',
+      rentTabSub: 'Paga el alquiler mensual y revisa facturas anteriores.',
+      utilTabTitle: 'Servicios',
+      utilTabSub: 'Electricidad, agua, internet — repartidos entre inquilinos activos.',
+      rentTitle: 'Pagos de alquiler',
+      rentSubTenant: 'Paga el alquiler mensual y revisa facturas anteriores en tu moneda.',
+      rentSubLandlord: 'Sigue los pagos de alquiler en todas tus propiedades.',
+      utilTitle: 'Pagos de servicios',
+      utilSubTenant: 'Electricidad, agua e internet — repartidos entre los inquilinos activos.',
+      utilSubLandlord: 'Reparto de servicios en todas tus propiedades.',
+      month: 'Mes',
+      description: 'Descripción',
+      rental: 'Alquiler',
+      amount: 'Importe',
+      due: 'Vencimiento',
+      status: 'Estado',
+      paidAt: 'Pagado el',
+      pay: 'Pagar',
+      payTitle: 'Confirmar pago',
+      payDoneTitle: 'Pago recibido',
+      payDoneSub: 'Hemos recibido tu pago de',
+      cardNumber: 'Número de tarjeta',
+      cardExpiry: 'Caducidad',
+      cardCvc: 'CVC',
+      payNow: 'Pagar ahora',
+      payDisclaimer: 'Pago de demostración: no se cobra ninguna tarjeta. En producción se redirige a Stripe.',
+      total: 'Total',
     },
     dash: {
       incomeByMonth: 'Ingresos por mes',
@@ -639,6 +891,92 @@ export const dictionaries: Record<Locale, Dictionary> = {
       f4Title: 'Договоры на 3 языках',
       f4Body:
         'Автогенерация договоров и электронные подписи на английском, испанском или русском.',
+    },
+    roles: { admin: 'Админ', landlord: 'Арендодатель', tenant: 'Арендатор' },
+    paymentStatus: { paid: 'Оплачено', pending: 'К оплате', overdue: 'Просрочено' },
+    paymentKind: {
+      rent: 'Аренда',
+      deposit: 'Депозит',
+      utility: 'Коммуналка',
+      penalty: 'Пеня',
+      refund: 'Возврат',
+    },
+    utilityKind: { electricity: 'Электричество', water: 'Вода', internet: 'Интернет' },
+    dashboard: {
+      eyebrow: 'Личный кабинет',
+      hello: 'Здравствуйте',
+      browseStays: 'Смотреть жильё',
+      manageProperties: 'Управление объектами',
+      payRent: 'Оплатить аренду',
+      payRentTitle: 'Оплата аренды',
+      payRentSub: 'История платежей и оплата онлайн.',
+      payUtilities: 'Оплатить коммуналку',
+      payUtilitiesTitle: 'Коммунальные платежи',
+      payUtilitiesSub: 'Электричество, вода, интернет.',
+      viewHistory: 'Открыть историю',
+      activeRentals: 'Активные аренды',
+      totalMonthly: 'Всего в месяц',
+      nextPayment: 'Ближайший платёж',
+      noUpcoming: 'Платежей нет',
+      myRentals: 'Мои аренды',
+      myRentalsSub: 'Квартиры и комнаты, которые вы сейчас снимаете. Кликните по карточке, чтобы открыть объявление.',
+      noRentals: 'У вас пока нет активных аренд.',
+      payments: 'Платежи',
+      recommendationsTitle: 'Возможно, вам понравится',
+      recommendationsSub: 'Подборка жилья для долгой аренды.',
+      allListings: 'Все объявления',
+      rentedSegments: 'Сданные единицы',
+      monthlyIncome: 'Доход в месяц',
+      collectedRent: 'Собранная аренда',
+      collectedUtilities: 'Собранная коммуналка',
+      allTime: 'за всё время',
+      myRentedProperties: 'Мои сданные объекты',
+      myRentedPropertiesSub: 'Объекты в текущей аренде, сгруппированы по адресу.',
+      allProperties: 'Все объекты',
+      noProperties: 'Пока нет добавленных объектов.',
+      tenants: 'Арендаторов',
+      tenantsList: 'Арендаторы',
+      monthlyTotal: 'Итого в месяц',
+      term: 'Срок',
+      rentHistory: 'История аренды',
+      utilityHistory: 'История коммуналки',
+      lastRent: 'Последняя аренда',
+      nextRent: 'Следующий платёж',
+      lastUtility: 'Последняя коммуналка',
+      totalPaid: 'Всего оплачено',
+      totalDue: 'К оплате',
+    },
+    payments: {
+      eyebrow: 'Платежи',
+      title: 'Центр платежей',
+      sub: 'Выберите, что хотите оплатить или посмотреть.',
+      rentTabTitle: 'Аренда',
+      rentTabSub: 'Оплата ежемесячной аренды и история счетов.',
+      utilTabTitle: 'Коммуналка',
+      utilTabSub: 'Электричество, вода, интернет — делятся между активными арендаторами.',
+      rentTitle: 'Платежи за аренду',
+      rentSubTenant: 'Оплачивайте аренду и просматривайте прошлые счета в выбранной валюте.',
+      rentSubLandlord: 'Платежи арендаторов по всем вашим объектам.',
+      utilTitle: 'Коммунальные платежи',
+      utilSubTenant: 'Электричество, вода и интернет — делятся между активными арендаторами объекта.',
+      utilSubLandlord: 'Распределение коммунальных платежей по вашим объектам.',
+      month: 'Месяц',
+      description: 'Описание',
+      rental: 'Объект',
+      amount: 'Сумма',
+      due: 'Срок',
+      status: 'Статус',
+      paidAt: 'Оплачено',
+      pay: 'Оплатить',
+      payTitle: 'Подтвердите платёж',
+      payDoneTitle: 'Платёж принят',
+      payDoneSub: 'Мы получили ваш платёж на сумму',
+      cardNumber: 'Номер карты',
+      cardExpiry: 'Срок',
+      cardCvc: 'CVC',
+      payNow: 'Оплатить',
+      payDisclaimer: 'Демо-оплата — реальные деньги не списываются. В проде это редирект в Stripe.',
+      total: 'Итого',
     },
     dash: {
       incomeByMonth: 'Доход по месяцам',
