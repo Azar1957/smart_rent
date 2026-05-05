@@ -21,6 +21,11 @@ Class SmartRent.Setup.Fixtures Extends %RegisteredObject
 
 ClassMethod Load() As %Status
 {
+    // Одноразовая чистка: убираем артефакты старых фикстур с русскими
+    // адресами (Невский / Санкт-Петербург / Россия / RUB и т.п.).
+    // Идемпотентна — после первого прогона ничего не делает.
+    do ..PurgeLegacyRussianProperties()
+
     if ##class(SmartRent.Model.User).EmailIdxExists("admin@smartrent.local") {
         write "[smartrent] fixtures already loaded", !
         do ..RepairPasswords()
@@ -33,6 +38,85 @@ ClassMethod Load() As %Status
     do ..EnsureExtendedDemo()
 
     write !, "Fixtures loaded.", !
+    quit $$$OK
+}
+
+/// Зачистить устаревшие RU-объекты вместе со связанными сегментами /
+/// бронированиями / договорами / платежами / коммунальными счетами.
+/// Безопасно вызывать многократно: если ничего подходящего нет — выходит молча.
+ClassMethod PurgeLegacyRussianProperties() As %Status
+{
+    set tCount = 0
+    set tQuery = "SELECT ID FROM SmartRent_Model.Property " _
+                 "WHERE Country = 'Россия' " _
+                 "   OR City = 'Санкт-Петербург' " _
+                 "   OR City = 'Москва' " _
+                 "   OR Address LIKE '%Невский%' " _
+                 "   OR Title LIKE '%Невск%' " _
+                 "   OR Title LIKE '%комнатная квартира на Невск%'"
+    set tRs = ##class(%SQL.Statement).%ExecDirect(, tQuery)
+    while tRs.%Next() {
+        set tPid = tRs.%Get("ID")
+        do ..deletePropertyCascade(tPid)
+        set tCount = tCount + 1
+    }
+    if tCount > 0 {
+        write "[smartrent] purged ", tCount, " legacy RU property(ies).", !
+    }
+    quit $$$OK
+}
+
+/// Удалить Property вместе со всеми зависимыми записями.
+/// Порядок важен: сначала Payment → Lease → Booking → UtilityBill → Segment → Property.
+ClassMethod deletePropertyCascade(pPropId As %String) As %Status
+{
+    // Сегменты и связанные booking/lease/payment.
+    set tRs = ##class(%SQL.Statement).%ExecDirect(,
+        "SELECT ID FROM SmartRent_Model.Segment WHERE Property = ?", pPropId)
+    while tRs.%Next() {
+        do ..deleteSegmentCascade(tRs.%Get("ID"))
+    }
+    // Коммунальные счета и сгенерированные по ним платежи (по lease они и так
+    // удалены, но иногда счёт может болтаться отдельно).
+    set tRs2 = ##class(%SQL.Statement).%ExecDirect(,
+        "SELECT ID FROM SmartRent_Model.UtilityBill WHERE Property = ?", pPropId)
+    while tRs2.%Next() {
+        do ##class(SmartRent.Model.UtilityBill).%DeleteId(tRs2.%Get("ID"))
+    }
+    do ##class(SmartRent.Model.Property).%DeleteId(pPropId)
+    quit $$$OK
+}
+
+ClassMethod deleteSegmentCascade(pSegId As %String) As %Status
+{
+    set tRs = ##class(%SQL.Statement).%ExecDirect(,
+        "SELECT ID FROM SmartRent_Model.Booking WHERE Segment = ?", pSegId)
+    while tRs.%Next() {
+        do ..deleteBookingCascade(tRs.%Get("ID"))
+    }
+    do ##class(SmartRent.Model.Segment).%DeleteId(pSegId)
+    quit $$$OK
+}
+
+ClassMethod deleteBookingCascade(pBookId As %String) As %Status
+{
+    set tRs = ##class(%SQL.Statement).%ExecDirect(,
+        "SELECT ID FROM SmartRent_Model.Lease WHERE Booking = ?", pBookId)
+    while tRs.%Next() {
+        do ..deleteLeaseCascade(tRs.%Get("ID"))
+    }
+    do ##class(SmartRent.Model.Booking).%DeleteId(pBookId)
+    quit $$$OK
+}
+
+ClassMethod deleteLeaseCascade(pLeaseId As %String) As %Status
+{
+    set tRs = ##class(%SQL.Statement).%ExecDirect(,
+        "SELECT ID FROM SmartRent_Model.Payment WHERE Lease = ?", pLeaseId)
+    while tRs.%Next() {
+        do ##class(SmartRent.Model.Payment).%DeleteId(tRs.%Get("ID"))
+    }
+    do ##class(SmartRent.Model.Lease).%DeleteId(pLeaseId)
     quit $$$OK
 }
 

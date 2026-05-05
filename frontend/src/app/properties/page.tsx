@@ -12,11 +12,22 @@ type Property = {
   id: string; title: string; city?: string; address?: string; totalRooms?: number; totalArea?: number;
 };
 
+/// Фронтовый «защитный» фильтр: даже если в БД остались legacy-объекты с
+/// российскими адресами от старых фикстур (до того как мы выпилили RUB),
+/// они не должны попадать в UI. После одноразовой миграции в IRIS
+/// (`Setup.Fixtures.RemoveLegacyRussianProperties`) этот фильтр не должен
+/// ничего отсеивать, но мы его оставляем как страховку.
+const RU_LEGACY = /Невский|Россия|Санкт-Петербург|Москва|Новосибирск|Екатеринбург|Казань|Россия/i;
+function isLegacyRussian(p: Property): boolean {
+  return RU_LEGACY.test(p.title || '') || RU_LEGACY.test(p.city || '') || RU_LEGACY.test(p.address || '');
+}
+
 export default function PropertiesPage() {
   const { t } = useT();
   const { token, user } = useAuth();
   const { data, mutate, isLoading } = useSWR(['/properties', token], ([p, tk]) => api(p, { token: tk }));
-  const items: Property[] = (data as any)?.items || [];
+  const rawItems: Property[] = (data as any)?.items || [];
+  const items = rawItems.filter((p) => !isLegacyRussian(p));
   const isLandlord = user?.role === 'landlord' || user?.role === 'admin';
   const [showForm, setShowForm] = useState(false);
 
@@ -46,7 +57,7 @@ export default function PropertiesPage() {
               <div className="text-lg font-semibold">{p.title}</div>
               <div className="mt-1 text-sm text-slate-500">{p.city} · {p.address}</div>
               <div className="mt-3 text-xs text-slate-500">
-                {p.totalRooms} комнат · {p.totalArea} м²
+                {p.totalRooms ?? 0} {t.listing.roomsShort} · {p.totalArea ?? 0} m²
               </div>
             </Link>
           ))}
