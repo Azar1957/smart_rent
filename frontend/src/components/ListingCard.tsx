@@ -5,15 +5,19 @@ import { Star, Heart, MapPin } from 'lucide-react';
 import { useAuth } from '@/lib/store';
 import { useT } from '@/lib/i18n';
 import { formatPrice } from '@/lib/currency';
-import type { DemoListing } from '@/data/listings';
+import { pickLocale, type DemoListing } from '@/data/listings';
 
 export function ListingCard({ item }: { item: DemoListing }) {
   const currency = useAuth((s) => s.currency);
-  const { t } = useT();
+  const { t, locale } = useT();
 
   const monthly = formatPrice(item.monthlyEur, currency);
   const deposit = formatPrice(item.depositEur, currency);
 
+  const title = pickLocale(item.title, locale);
+  const city = pickLocale(item.city, locale);
+  const country = pickLocale(item.country, locale);
+  const address = pickLocale(item.address, locale);
   const kindLabel = t.kind[item.kind];
 
   return (
@@ -26,7 +30,7 @@ export function ListingCard({ item }: { item: DemoListing }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={item.photo}
-            alt={item.title}
+            alt={title}
             className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
             loading="lazy"
           />
@@ -56,7 +60,7 @@ export function ListingCard({ item }: { item: DemoListing }) {
 
       <div className="pt-3 px-1 flex flex-col gap-1">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="text-body font-semibold text-carbon line-clamp-1">{item.title}</h3>
+          <h3 className="text-body font-semibold text-carbon line-clamp-1">{title}</h3>
           <div className="flex items-center gap-1 shrink-0">
             <Star className="h-3 w-3 fill-carbon text-carbon" />
             <span className="text-[12px] font-semibold text-carbon">{item.rating.toFixed(2)}</span>
@@ -67,11 +71,11 @@ export function ListingCard({ item }: { item: DemoListing }) {
         <div className="flex items-center gap-1 text-[12px] text-slatex">
           <MapPin className="h-3 w-3" />
           <span>
-            {item.city}, {item.country}
+            {city}, {country}
           </span>
         </div>
 
-        <div className="text-[12px] text-slatex">{item.address}</div>
+        <div className="text-[12px] text-slatex">{address}</div>
 
         <div className="text-[12px] text-slatex">
           {kindLabel} · {item.rooms} {t.listing.roomsShort} · {item.area} m²

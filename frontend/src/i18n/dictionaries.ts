@@ -37,6 +37,22 @@ export interface Dictionary {
     studio: string;
     room: string;
   };
+  amenities: Record<string, string>;
+  bookingModal: {
+    title: string;
+    doneTitle: string;
+    doneSub: string;
+    doneNote: string;
+    startDate: string;
+    endDate: string;
+    name: string;
+    email: string;
+    note: string;
+    notePh: string;
+    confirm: string;
+    close: string;
+    disclaimer: string;
+  };
   listing: {
     guestFavorite: string;
     perMonth: string;
@@ -163,6 +179,40 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     categories: { all: 'All stays', apartment: 'Apartments', studio: 'Studios', room: 'Rooms' },
     kind: { apartment: 'Entire apartment', studio: 'Studio', room: 'Private room' },
+    amenities: {
+      wifi: 'Wi-Fi',
+      ac: 'Air conditioning',
+      heating: 'Heating',
+      washer: 'Washer',
+      dishwasher: 'Dishwasher',
+      kitchen: 'Kitchen',
+      'kitchen-shared': 'Shared kitchen',
+      'lounge-shared': 'Shared lounge',
+      furnished: 'Fully furnished',
+      balcony: 'Balcony',
+      rooftop: 'Rooftop',
+      lift: 'Lift',
+      'bike-storage': 'Bike storage',
+      'smart-lock': 'Smart lock',
+      concierge: 'Concierge',
+    },
+    bookingModal: {
+      title: 'Request to book',
+      doneTitle: 'Request sent',
+      doneSub: 'Your booking request has been sent for',
+      doneNote:
+        'The host will reply to you by email within 24 hours. You can track the request in your dashboard.',
+      startDate: 'Move-in',
+      endDate: 'Move-out',
+      name: 'Full name',
+      email: 'Email',
+      note: 'Message to host (optional)',
+      notePh: 'Tell the host a few words about yourself.',
+      confirm: 'Send request',
+      close: 'Close',
+      disclaimer:
+        'Sending a request does not charge you. Payment is collected only after the host accepts.',
+    },
     listing: {
       guestFavorite: 'Guest favourite',
       perMonth: '/ month',
@@ -294,6 +344,40 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     categories: { all: 'Todos', apartment: 'Apartamentos', studio: 'Estudios', room: 'Habitaciones' },
     kind: { apartment: 'Apartamento entero', studio: 'Estudio', room: 'Habitación privada' },
+    amenities: {
+      wifi: 'Wi-Fi',
+      ac: 'Aire acondicionado',
+      heating: 'Calefacción',
+      washer: 'Lavadora',
+      dishwasher: 'Lavavajillas',
+      kitchen: 'Cocina',
+      'kitchen-shared': 'Cocina compartida',
+      'lounge-shared': 'Salón compartido',
+      furnished: 'Totalmente amueblado',
+      balcony: 'Balcón',
+      rooftop: 'Azotea',
+      lift: 'Ascensor',
+      'bike-storage': 'Trastero para bicis',
+      'smart-lock': 'Cerradura inteligente',
+      concierge: 'Conserjería',
+    },
+    bookingModal: {
+      title: 'Solicitar reserva',
+      doneTitle: 'Solicitud enviada',
+      doneSub: 'Tu solicitud se ha enviado para',
+      doneNote:
+        'El anfitrión te responderá por email en las próximas 24 horas. Puedes seguir la solicitud en tu panel.',
+      startDate: 'Entrada',
+      endDate: 'Salida',
+      name: 'Nombre completo',
+      email: 'Correo',
+      note: 'Mensaje al anfitrión (opcional)',
+      notePh: 'Cuéntale al anfitrión un poco sobre ti.',
+      confirm: 'Enviar solicitud',
+      close: 'Cerrar',
+      disclaimer:
+        'Enviar la solicitud no genera ningún cargo. El pago se realiza solo cuando el anfitrión acepta.',
+    },
     listing: {
       guestFavorite: 'Favorito de huéspedes',
       perMonth: '/ mes',
@@ -425,6 +509,40 @@ export const dictionaries: Record<Locale, Dictionary> = {
     },
     categories: { all: 'Всё жильё', apartment: 'Квартиры', studio: 'Студии', room: 'Комнаты' },
     kind: { apartment: 'Целая квартира', studio: 'Студия', room: 'Отдельная комната' },
+    amenities: {
+      wifi: 'Wi-Fi',
+      ac: 'Кондиционер',
+      heating: 'Отопление',
+      washer: 'Стиральная машина',
+      dishwasher: 'Посудомоечная машина',
+      kitchen: 'Кухня',
+      'kitchen-shared': 'Общая кухня',
+      'lounge-shared': 'Общая гостиная',
+      furnished: 'Полностью меблирована',
+      balcony: 'Балкон',
+      rooftop: 'Терраса на крыше',
+      lift: 'Лифт',
+      'bike-storage': 'Велокомната',
+      'smart-lock': 'Умный замок',
+      concierge: 'Консьерж',
+    },
+    bookingModal: {
+      title: 'Заявка на бронирование',
+      doneTitle: 'Заявка отправлена',
+      doneSub: 'Ваша заявка отправлена по объявлению',
+      doneNote:
+        'Арендодатель ответит вам по email в течение 24 часов. Статус заявки можно отслеживать в личном кабинете.',
+      startDate: 'Заезд',
+      endDate: 'Выезд',
+      name: 'Имя и фамилия',
+      email: 'Email',
+      note: 'Сообщение арендодателю (по желанию)',
+      notePh: 'Расскажите о себе в нескольких словах.',
+      confirm: 'Отправить заявку',
+      close: 'Закрыть',
+      disclaimer:
+        'Отправка заявки бесплатна. Оплата происходит только после того, как арендодатель её одобрит.',
+    },
     listing: {
       guestFavorite: 'Выбор гостей',
       perMonth: '/ мес',
